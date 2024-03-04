@@ -2,13 +2,16 @@ package bgu.spl.net.impl.tftp;
 
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 
 public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
     private final ByteBuffer optcodeBuffer = ByteBuffer.allocate(2);
     private short optcode = -1;
-    private int objectBytesIndex = 0;
+    private LinkedList<Byte> currPacket = new LinkedList<Byte>();
+    private int packetBytesIndex = 0;
+    private byte[] returnMsg = null;
 
 
     @Override
@@ -20,10 +23,27 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
             if (!optcodeBuffer.hasRemaining()) { //we read 2 bytes and therefore can take the length
                 optcodeBuffer.flip();
                 optcode = optcodeBuffer.getShort();
-                objectBytesIndex = 0;
                 optcodeBuffer.clear();
             }
         } else {
+            switch (optcode) {
+                case 1:
+                    
+                    break;
+                case 2:
+                    
+                    break;
+                case 3:
+                    
+                    break;
+                case 6:
+                    return 
+                    break;
+            
+                default:
+                    break;
+            }
+
             optcode = -1;
             return null;
         }
