@@ -1,19 +1,22 @@
 package bgu.spl.net.impl.tftp;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collector;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.impl.tftp.packetReaders.PacketReader;
 
 public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
     private final ByteBuffer optcodeBuffer = ByteBuffer.allocate(2);
+    private PacketReader pReader = null;
     private short optcode = -1;
-    private LinkedList<Byte> currPacket = new LinkedList<Byte>();
-    private int packetBytesIndex = 0;
-    private byte[] returnMsg = null;
-
-
+    
     @Override
     public byte[] decodeNextByte(byte nextByte) {
         //TODO implement
@@ -26,27 +29,16 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 optcodeBuffer.clear();
             }
         } else {
-            switch (optcode) {
-                case 1:
-                    
-                    break;
-                case 2:
-                    
-                    break;
-                case 3:
-                    
-                    break;
-                case 6:
-                    return 
-                    break;
-            
-                default:
-                    break;
+            if(pReader == null) pReader = PacketReader.makePacketReader(optcode);
+            byte[] retArr = pReader.proccesByte(nextByte);
+            if(retArr != null){
+                pReader = null;
+                optcode = -1;
             }
-
-            optcode = -1;
-            return null;
+            
+            return retArr;
         }
+
         return null;
     }
 
