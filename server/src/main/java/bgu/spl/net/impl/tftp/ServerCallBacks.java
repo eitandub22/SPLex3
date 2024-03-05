@@ -3,12 +3,16 @@ package bgu.spl.net.impl.tftp;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerCallBacks {
-    private LoginCallback loginCallback;
-    private GetLoggedCallback getLoggedCallback;
+    private final LoginCallback loginCallback;
+    private final GetLoggedCallback getLoggedCallback;
+    private final LogoutCallback logoutCallback;
+    private final IsLoggedInCallback isLoggedInCallback;
 
     public ServerCallBacks(TftpServer server){
-        this.loginCallback = (int connectionId, String userName) -> server.login(connectionId, userName);//TODO implement
-        this.getLoggedCallback = () -> server.getLoggedIn();//TODO implement
+        this.loginCallback = server::login;//TODO implement
+        this.getLoggedCallback = server::getLoggedIn;//TODO implement
+        this.logoutCallback = server::logout;
+        this.isLoggedInCallback = server::isLoggedIn;
     }
 
     public boolean login(int connectionId, String userName){
@@ -18,4 +22,8 @@ public class ServerCallBacks {
     public ConcurrentHashMap<String, Integer> getLoggedIn(){
         return getLoggedCallback.getLoggedIn();
     }
+
+    public boolean logout(int connectionId){ return this.logoutCallback.logout(connectionId); }
+
+    public boolean isLoggedIn(int connectionId){ return this.isLoggedInCallback.isLoggedIn(connectionId); }
 }

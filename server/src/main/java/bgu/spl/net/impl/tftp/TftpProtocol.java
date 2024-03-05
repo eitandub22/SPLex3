@@ -14,34 +14,12 @@ import java.util.Map;
 public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean terminate = false;
     private ServerCallBacks serverCallBacks;
-    private HashMap<Integer, String> errors = new HashMap<Integer, String>();
-
-    private String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found – RRQ DELRQ of non-existing file.", "Access violation – File cannot be written, read or deleted.", "Disk full or allocation exceeded – No room in disk.", "Illegal TFTP operation – Unknown Opcode.", "File already exists – File name exists on WRQ.", "User not logged in – Any opcode received before Login completes.", "User already logged in – Login username already connected."};
-    /*enum OPCODES {
-        READ(1), WRITE(2), DATA(3), ACK(4), ERROR(5), DIR(6), LOGIN(7), DELETE(8), CAST(9), DISCONNECT(10);
-        private final int value;
-
-        OPCODES(int value) {
-            this.value = value;
-        }
-
-        public static OPCODES getOpcode(int value) {
-            for (OPCODES opcode : OPCODES.values()) {
-                if (opcode.getValue() == value) {
-                    return opcode;
-                }
-            }
-            return null;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }*/
-
+    private final HashMap<Integer, String> errors = new HashMap<Integer, String>();
+    private final String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found – RRQ DELRQ of non-existing file.", "Access violation – File cannot be written, read or deleted.", "Disk full or allocation exceeded – No room in disk.", "Illegal TFTP operation – Unknown Opcode.", "File already exists – File name exists on WRQ.", "User not logged in – Any opcode received before Login completes.", "User already logged in – Login username already connected."};
     private Connections<byte[]> connections;
     private int connectionId;
 
+    private int lastAck = -1;
     private PacketFactory packetFactory;
 
     @Override
@@ -67,45 +45,56 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     public void process(byte[] message) {
         short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]));
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
-        byte[] data = null;
-        switch (opcodeEnum){
-            case READ:
-                data = Arrays.copyOfRange(message, 2, message.length - 2);
-                processRead(data);
-                break;
-            case WRITE:
-                data = Arrays.copyOfRange(message, 2, message.length - 2);
-                processWrite(data);
-                break;
-            case DATA:
-                processData();
-                break;
-            case ACK:
-                processAck();
-                break;
-            case ERROR:
-                processError();
-                break;
-            case DIR:
-                processDir();
-                break;
-            case LOGIN:
-                data = Arrays.copyOfRange(message, 2, message.length - 2);
-                processLogin(data);
-                break;
-            case DELETE:
-                processDelete(data);
-                break;
-            case DISCONNECT:
-                processDisconnect();
-                break;
+        if(serverCallBacks.isLoggedIn(this.connectionId)){
+            switch (opcodeEnum){
+                case READ:
+                    message = Arrays.copyOfRange(message, 2, message.length - 2);
+                    processRead(message);
+                    break;
+                case WRITE:
+                    message = Arrays.copyOfRange(message, 2, message.length - 2);
+                    processWrite(message);
+                    break;
+                case DATA:
+                    processData();
+                    break;
+                case ACK:
+                    processAck(message);
+                    break;
+                case ERROR:
+                    //processError();
+                    break;
+                case DIR:
+                    processDir();
+                    break;
+                case LOGIN:
+                    message = Arrays.copyOfRange(message, 2, message.length - 2);
+                    processLogin(message);
+                    break;
+                case DELETE:
+                    processDelete(message);
+                    break;
+                case DISCONNECT:
+                    processDisconnect();
+                    break;
+                default:
+                    connections.send(this.connectionId, packetFactory.createErrorPacket((short) 4, errors.get(4)));
+            }
         }
-
+        else{
+            connections.send(this.connectionId, packetFactory.createErrorPacket((short) 6, errors.get(6)));
+        }
     }
 
     private void processDisconnect() {
-        terminate = true;
-        connections.disconnect(this.connectionId);
+        if(serverCallBacks.logout(this.connectionId)){
+            terminate = true;
+            connections.send(this.connectionId, packetFactory.createAckPacket((short)0));
+            connections.disconnect(this.connectionId);//closing my end of the socket
+        }
+        else{
+            connections.send(this.connectionId, packetFactory.createErrorPacket((short) 6, errors.get(6)));
+        }
     }
 
     private void sendCast(String fileName, int status) {
@@ -122,11 +111,13 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
         catch (NoSuchFileException e) {
             connections.send(this.connectionId, packetFactory.createErrorPacket((short)1, errors.get(1)));
+            return;
         }
         catch (IOException e) {
             connections.send(this.connectionId, packetFactory.createErrorPacket((short)2, errors.get(2)));
+            return;
         }
-
+        connections.send(this.connectionId, packetFactory.createAckPacket((short)0));
     }
 
     private void processLogin(byte[] data) {
@@ -142,13 +133,19 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private void processDir() {
 
     }
-
-    private void processError() {
-
-    }
-
-    private void processAck() {
-
+    //can i even get an error packet from the client? probably don't need this method
+    //private void processError() {}
+    private void processAck(byte[] data) {
+        byte[] blockArr = new byte[2];
+        blockArr = Arrays.copyOfRange(data, 2, data.length - 1);
+        short blockNum = (short) ((( short ) blockArr [0]) << 8 | ( short ) ( blockArr [1]) );
+        if(blockNum == lastAck){
+            //continue writing to client
+            lastAck++;
+        }
+        else{
+            //send an error packet
+        }
     }
 
     private void processData() {

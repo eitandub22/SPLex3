@@ -1,5 +1,6 @@
 package bgu.spl.net.impl.tftp;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TftpServer {
@@ -14,6 +15,25 @@ public class TftpServer {
             loggedUsers.put(userName, connectionId);
             return true;
         }
+    }
+
+    public boolean logout(int connectionId){
+        for(Map.Entry<String, Integer> user : loggedUsers.entrySet()){
+            if(user.getValue() == connectionId){
+                loggedUsers.remove(user.getKey());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isLoggedIn(int connectionId) {
+        for(Map.Entry<String, Integer> user : loggedUsers.entrySet()){
+            if(user.getValue() == connectionId){
+                return true;
+            }
+        }
+        return false;
     }
     //TODO: Implement this
 }
