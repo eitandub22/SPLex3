@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean terminate = false;
@@ -121,14 +122,14 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
 
     }
 
-    private byte[] processLogin(byte[] data) {
+    private void processLogin(byte[] data) {
         String userName = new String(data, StandardCharsets.UTF_8);
-        if(!connections.getLoggedIn().contains(userName)){
-            connections.logIn(userName);
-            return createAckPacket((short)0);
+        if(!connections.getLoggedIn().containsKey(this.connectionId)){//TODO implement
+            connections.logIn(this.connectionId, userName);//TODO implement
+            connections.send(this.connectionId ,createAckPacket((short)0));
         }
         else{
-            return createErrorPacket((short)7, ALREADY_LOGGED);
+            connections.send(this.connectionId, createErrorPacket((short)7, ALREADY_LOGGED));
         }
     }
 
