@@ -12,10 +12,4 @@ public interface Connections<T> {
     boolean send(int connectionId, T msg);
 
     void disconnect(int connectionId);
-
-    ConcurrentHashMap<Integer, String> getLoggedIn();
-
-    boolean logIn(int connectionId, String userName);
-
-    Set<Integer> getIds();
 }
