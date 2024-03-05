@@ -60,11 +60,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         byte[] data = null;
         switch (opcodeEnum){
             case READ:
-                data = Arrays.copyOfRange(message, 2, message.length - 1);
+                data = Arrays.copyOfRange(message, 2, message.length - 2);
                 processRead(data);
                 break;
             case WRITE:
-                data = Arrays.copyOfRange(message, 2, message.length - 1);
+                data = Arrays.copyOfRange(message, 2, message.length - 2);
                 processWrite(data);
                 break;
             case DATA:
@@ -80,6 +80,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
                 processDir();
                 break;
             case LOGIN:
+                data = Arrays.copyOfRange(message, 2, message.length - 2);
                 processLogin(data);
                 break;
             case DELETE:
@@ -112,16 +113,23 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             Files.deleteIfExists(Paths.get("Flies" + "\\" + fileName));
         }
         catch (NoSuchFileException e) {
-            connections.send(this.connectionId, createErrorPacket((short)2, FILE_NOT_FOUND));
+            connections.send(this.connectionId, createErrorPacket((short)1, FILE_NOT_FOUND));
         }
         catch (IOException e) {
-            connections.send(this.connectionId, createErrorPacket((short)3, ACCESS_VIOLATION));
+            connections.send(this.connectionId, createErrorPacket((short)2, ACCESS_VIOLATION));
         }
 
     }
 
-    private void processLogin(byte[] data) {
-
+    private byte[] processLogin(byte[] data) {
+        String userName = new String(data, StandardCharsets.UTF_8);
+        if(!connections.getLoggedIn().contains(userName)){
+            connections.logIn(userName);
+            return createAckPacket((short)0);
+        }
+        else{
+            return createErrorPacket((short)7, ALREADY_LOGGED);
+        }
     }
 
     private void processDir() {
@@ -154,20 +162,25 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private byte[] createErrorPacket(short errCode, String errorDescription){
-        byte[] errMsg = new byte[5 + (errorDescription.getBytes(StandardCharsets.UTF_8)).length];
+        byte[] errPacket = new byte[5 + (errorDescription.getBytes(StandardCharsets.UTF_8)).length];
         byte[] msgStart = new byte[4];
         msgStart[0] = (byte)(0);
         msgStart[1] = (byte) ((short)OPCODES.ERROR.getValue() & 0xff);
         msgStart[2] = (byte)(errCode >> 8);
         msgStart[3] = (byte) (errCode & 0xff);
         byte[] errInBytes = errorDescription.getBytes(StandardCharsets.UTF_8);
-        System.arraycopy(msgStart, 0, errMsg, 0, msgStart.length);
-        System.arraycopy(errInBytes, 0, errMsg, msgStart.length, errInBytes.length);
-        System.arraycopy(endByte, 0, errMsg, msgStart.length + errInBytes.length, endByte.length);
-        return errMsg;
+        System.arraycopy(msgStart, 0, errPacket, 0, msgStart.length);
+        System.arraycopy(errInBytes, 0, errPacket, msgStart.length, errInBytes.length);
+        System.arraycopy(endByte, 0, errPacket, msgStart.length + errInBytes.length, endByte.length);
+        return errPacket;
     }
 
-    private byte[] createAckPacket(){
-        return new byte[0];
+    private byte[] createAckPacket(short block_number){
+        byte[] ackPacket = new byte[4];
+        ackPacket[0] = (byte)(0);
+        ackPacket[1] = (byte) ((short)OPCODES.ACK.getValue() & 0xff);
+        ackPacket[2] = (byte)(block_number >> 8);
+        ackPacket[3] = (byte) (block_number & 0xff);
+        return ackPacket;
     }
 }
