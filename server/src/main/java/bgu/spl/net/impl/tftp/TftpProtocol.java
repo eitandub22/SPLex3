@@ -3,13 +3,16 @@ package bgu.spl.net.impl.tftp;
 import bgu.spl.net.api.BidiMessagingProtocol;
 import bgu.spl.net.srv.Connections;
 
+import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.*;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean terminate = false;
@@ -18,9 +21,13 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private final String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found – RRQ DELRQ of non-existing file.", "Access violation – File cannot be written, read or deleted.", "Disk full or allocation exceeded – No room in disk.", "Illegal TFTP operation – Unknown Opcode.", "File already exists – File name exists on WRQ.", "User not logged in – Any opcode received before Login completes.", "User already logged in – Login username already connected."};
     private Connections<byte[]> connections;
     private int connectionId;
+    private int readAck = -1;
 
-    private int lastAck = -1;
+    private int dirAck = -1;
+    private int writeAck = -1;
+    private final Queue<ByteBuffer> dirQueue = new ConcurrentLinkedQueue<>();
     private PacketFactory packetFactory;
+    private final int CAPACITY = 512;
 
     @Override
     public void start(int connectionId, Connections<byte[]> connections) {
@@ -60,9 +67,6 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
                     break;
                 case ACK:
                     processAck(message);
-                    break;
-                case ERROR:
-                    //processError();
                     break;
                 case DIR:
                     processDir();
@@ -107,7 +111,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private void processDelete(byte[] data) {
         String fileName = new String(data, StandardCharsets.UTF_8);
         try {
-            Files.deleteIfExists(Paths.get("Flies" + "\\" + fileName));
+            Files.deleteIfExists(Paths.get("Files" + "\\" + fileName));
         }
         catch (NoSuchFileException e) {
             connections.send(this.connectionId, packetFactory.createErrorPacket((short)1, errors.get(1)));
@@ -131,17 +135,36 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void processDir() {
-
+        int blockNumber = dirAck;
+        List<String> fileNames = Stream.of(new File("Files").listFiles())
+                .filter(file -> !file.isDirectory())
+                .map(File::getName)
+                .collect(Collectors.toList());
+        int capacity = fileNames.stream().mapToInt(fileName -> fileName.getBytes().length).sum();
+        for(String fileName : fileNames){
+            dirQueue.add(ByteBuffer.wrap(fileName.getBytes()));
+        }
+        int i = capacity/CAPACITY;
+        while(i >= 0){
+            ByteBuffer currentFile = dirQueue.peek();
+            ByteBuffer currentData = ByteBuffer.allocate(CAPACITY);
+            while(currentFile.position() < CAPACITY && currentData.position() < CAPACITY){
+                currentData.put(currentFile);
+                if(currentData.position() >= currentFile.position()) dirQueue.remove();
+            }
+            //byte[] dirPacket = packetFactory.createDataPacket(fileNames.get(i), blockNumber);
+            capacity -= CAPACITY;
+            i -= 1;
+            dirAck++;
+        }
     }
-    //can i even get an error packet from the client? probably don't need this method
-    //private void processError() {}
     private void processAck(byte[] data) {
         byte[] blockArr = new byte[2];
         blockArr = Arrays.copyOfRange(data, 2, data.length - 1);
         short blockNum = (short) ((( short ) blockArr [0]) << 8 | ( short ) ( blockArr [1]) );
-        if(blockNum == lastAck){
+        if(blockNum == writeAck){
             //continue writing to client
-            lastAck++;
+            writeAck++;
         }
         else{
             //send an error packet
