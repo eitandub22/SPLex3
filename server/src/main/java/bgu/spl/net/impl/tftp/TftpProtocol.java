@@ -21,10 +21,9 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private final String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found – RRQ DELRQ of non-existing file.", "Access violation – File cannot be written, read or deleted.", "Disk full or allocation exceeded – No room in disk.", "Illegal TFTP operation – Unknown Opcode.", "File already exists – File name exists on WRQ.", "User not logged in – Any opcode received before Login completes.", "User already logged in – Login username already connected."};
     private Connections<byte[]> connections;
     private int connectionId;
-    private int readAck = -1;
-
-    private int dirAck = -1;
-    private int writeAck = -1;
+    private int readAck = 1;
+    private int dirAck = 1;
+    private int writeAck = 1;
     private final Queue<ByteBuffer> dirQueue = new ConcurrentLinkedQueue<>();
     private PacketFactory packetFactory;
     private final int CAPACITY = 512;
@@ -135,28 +134,29 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void processDir() {
-        int blockNumber = dirAck;
-        List<String> fileNames = Stream.of(new File("Files").listFiles())
-                .filter(file -> !file.isDirectory())
-                .map(File::getName)
-                .collect(Collectors.toList());
-        int capacity = fileNames.stream().mapToInt(fileName -> fileName.getBytes().length).sum();
-        for(String fileName : fileNames){
-            dirQueue.add(ByteBuffer.wrap(fileName.getBytes()));
-        }
-        int i = capacity/CAPACITY;
-        while(i >= 0){
-            ByteBuffer currentFile = dirQueue.peek();
-            ByteBuffer currentData = ByteBuffer.allocate(CAPACITY);
-            while(currentFile.position() < CAPACITY && currentData.position() < CAPACITY){
-                currentData.put(currentFile);
-                if(currentData.position() >= currentFile.position()) dirQueue.remove();
+        if(dirQueue.isEmpty()){
+            List<String> fileNames = Stream.of(new File("Files").listFiles())
+                    .filter(file -> !file.isDirectory())
+                    .map(File::getName)
+                    .collect(Collectors.toList());
+            for(String fileName : fileNames){
+                ByteBuffer currentFile = ByteBuffer.wrap(fileName.getBytes());
+                currentFile.put((byte) 0);
+                dirQueue.add(currentFile);
             }
-            //byte[] dirPacket = packetFactory.createDataPacket(fileNames.get(i), blockNumber);
-            capacity -= CAPACITY;
-            i -= 1;
-            dirAck++;
         }
+        int capacity = dirQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
+        ByteBuffer currentFile = dirQueue.peek();
+        ByteBuffer currentData = capacity/CAPACITY > 0 ? ByteBuffer.allocate(CAPACITY) : ByteBuffer.allocate(capacity);
+        while(currentData.position() < CAPACITY){
+            int oldPos = currentData.position();
+            currentData.put(currentFile.array(), 0, Math.min(currentData.capacity() - currentData.position(), currentFile.capacity()));
+            if(currentData.position() == oldPos + currentFile.capacity()) dirQueue.remove();
+            else dirQueue.peek().position(currentData.capacity() - currentData.position());
+        }
+        byte[] dirPacket = packetFactory.createDataPacket(currentData.array(), dirAck);
+        dirAck++;
+        connections.send(this.connectionId, dirPacket);
     }
     private void processAck(byte[] data) {
         byte[] blockArr = new byte[2];
