@@ -10,6 +10,7 @@ import java.util.*;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +25,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private int readAck = 1;
     private int dirAck = 1;
     private int writeAck = 1;
-    private final Queue<ByteBuffer> dirQueue = new ConcurrentLinkedQueue<>();
+    private final Deque<ByteBuffer> dirQueue = new ConcurrentLinkedDeque<>();
     private PacketFactory packetFactory;
     private final int CAPACITY = 512;
 
@@ -140,7 +141,8 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
                     .map(File::getName)
                     .collect(Collectors.toList());
             for(String fileName : fileNames){
-                ByteBuffer currentFile = ByteBuffer.wrap(fileName.getBytes());
+                ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes().length + 1);
+                currentFile.put(fileName.getBytes());
                 currentFile.put((byte) 0);
                 dirQueue.add(currentFile);
             }
@@ -152,7 +154,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             int oldPos = currentData.position();
             currentData.put(currentFile.array(), 0, Math.min(currentData.capacity() - currentData.position(), currentFile.capacity()));
             if(currentData.position() == oldPos + currentFile.capacity()) dirQueue.remove();
-            else dirQueue.peek().position(currentData.capacity() - currentData.position());
+            else{
+                byte[] reminder = dirQueue.remove().array();
+                reminder = Arrays.copyOfRange(reminder, currentData.capacity() - currentData.position(), reminder.length);
+                dirQueue.addFirst(ByteBuffer.wrap(reminder));
+            }
         }
         byte[] dirPacket = packetFactory.createDataPacket(currentData.array(), dirAck);
         dirAck++;
@@ -166,8 +172,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             //continue writing to client
             writeAck++;
         }
+        else if(blockNum == dirAck){
+            processDir();
+        }
         else{
-            //send an error packet
+            connections.send(this.connectionId, packetFactory.createErrorPacket((short) 0, errors.get(0)));
         }
     }
 
