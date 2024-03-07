@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
@@ -54,6 +56,7 @@ public class TransferHandler {
                     fileLength -= CAPACITY;
                     currentChunk = fileLength/CAPACITY > 0 ? new byte[CAPACITY] : new byte[(int) fileLength];
                 }
+                fileInputStream.close();
             }
             catch (IOException e) {
                 return null;
@@ -73,5 +76,18 @@ public class TransferHandler {
             }
         }
         return currentData.array();
+    }
+
+    public static boolean handleData(byte[] data, String fileName){
+        short packetSize = (short) (((short) data[0]) << 8 | (short) (data[1]));
+        short blockNum = (short) (((short) data[2]) << 8 | (short) (data[3]));
+        byte[] fileData = Arrays.copyOfRange(data, 4, data.length);
+        try{
+            Files.write(Paths.get("Files" + "\\" + fileName), fileData);
+        }
+        catch (IOException exception){
+            return false;
+        }
+        return true;
     }
 }
