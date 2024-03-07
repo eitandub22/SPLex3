@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.tftp;
+package bgu.spl.net.impl.tftp.protocol;
 
 public enum Opcodes {
     READ(1), WRITE(2), DATA(3), ACK(4), ERROR(5), DIR(6), LOGIN(7), DELETE(8), CAST(9), DISCONNECT(10);

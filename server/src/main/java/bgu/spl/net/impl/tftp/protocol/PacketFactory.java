@@ -1,14 +1,11 @@
-package bgu.spl.net.impl.tftp;
+package bgu.spl.net.impl.tftp.protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Stream;
 
 public class PacketFactory {
-    private final byte[] endByte = new byte[]{0};
-    public byte[] createErrorPacket(short errCode, String errorDescription){
+    private static final byte[] endByte = new byte[]{0};
+    public static byte[] createErrorPacket(short errCode, String errorDescription){
         ByteBuffer errPacket = ByteBuffer.allocate(5 + (errorDescription.getBytes(StandardCharsets.UTF_8)).length);
         errPacket.put((byte)0);
         errPacket.put((byte) ((short) Opcodes.ERROR.getValue() & 0xff));
@@ -19,7 +16,7 @@ public class PacketFactory {
         return errPacket.array();
     }
 
-    public byte[] createAckPacket(short block_number){
+    public static byte[] createAckPacket(short block_number){
         ByteBuffer ackPacket = ByteBuffer.allocate(4);
         ackPacket.put((byte)(0));
         ackPacket.put((byte) ((short) Opcodes.ACK.getValue() & 0xff));
@@ -28,7 +25,7 @@ public class PacketFactory {
         return ackPacket.array();
     }
 
-    public byte[] createBcastPacket(String fileName, int status) {
+    public static byte[] createBcastPacket(String fileName, int status) {
         ByteBuffer bcastPacket = ByteBuffer.allocate(3 + fileName.getBytes().length);
         bcastPacket.put((byte)(0));
         bcastPacket.put((byte) ((short) Opcodes.CAST.getValue() & 0xff));
@@ -39,7 +36,7 @@ public class PacketFactory {
         return bcastPacket.array();
     }
 
-    public byte[] createDataPacket(byte[] data, int blockNumber){
+    public static byte[] createDataPacket(byte[] data, int blockNumber){
         ByteBuffer dirPacket = ByteBuffer.allocate(6 + data.length);
         ByteBuffer blockNum = ByteBuffer.allocate(2).putInt(blockNumber);
         ByteBuffer packetSize = ByteBuffer.allocate(2).putInt(data.length);
