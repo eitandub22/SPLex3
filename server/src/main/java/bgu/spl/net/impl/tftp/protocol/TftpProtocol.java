@@ -179,7 +179,10 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void processData(byte[] data, String writeFileName) {
-
+        writeAck++;
+        if(data.length < CAPACITY){
+            sendCast(writeFileName, 1);
+        }
     }
 
     private void processWrite(byte[] data) {
