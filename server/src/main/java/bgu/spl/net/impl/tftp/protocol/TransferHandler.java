@@ -48,12 +48,14 @@ public class TransferHandler {
     public static byte[] handleRead(Deque<ByteBuffer> readQueue, String filename){
         if(readQueue.isEmpty()){
             try{
-                FileInputStream  fileInputStream = new FileInputStream(filename);
-                long fileLength = new File(filename).length();
+                FileInputStream  fileInputStream = new FileInputStream("Files" + "\\" + filename);
+                long fileLength = new File("Files" + "\\" + filename).length();
                 byte[] currentChunk = fileLength/CAPACITY > 0 ? new byte[CAPACITY] : new byte[(int) fileLength];
                 while ((fileInputStream.read(currentChunk)) != -1) {
                     readQueue.add(ByteBuffer.wrap(currentChunk));
-                    fileLength -= CAPACITY;
+                    if(fileLength >= CAPACITY){
+                        fileLength -= CAPACITY;
+                    }
                     currentChunk = fileLength/CAPACITY > 0 ? new byte[CAPACITY] : new byte[(int) fileLength];
                 }
                 fileInputStream.close();
@@ -79,11 +81,9 @@ public class TransferHandler {
     }
 
     public static boolean handleData(byte[] data, String fileName){
-        short packetSize = (short) (((short) data[0]) << 8 | (short) (data[1]));
-        short blockNum = (short) (((short) data[2]) << 8 | (short) (data[3]));
         byte[] fileData = Arrays.copyOfRange(data, 4, data.length);
         try{
-            Files.write(Paths.get("Files" + "\\" + fileName), fileData);
+            Files.write(Paths.get("Files" + "\\" + fileName), fileData, java.nio.file.StandardOpenOption.APPEND);
         }
         catch (IOException exception){
             return false;

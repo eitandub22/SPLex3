@@ -48,7 +48,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
 
     @Override
     public void process(byte[] message) {
-        short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]));
+        short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]) & 0x00ff);
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
         if(isLogged){
             switch (opcodeEnum){
@@ -166,7 +166,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
 
     private void processAck(byte[] data) {
         byte[] blockArr = Arrays.copyOfRange(data, 2, data.length - 1);
-        short blockNum = (short) (((short) blockArr[0]) << 8 | (short) (blockArr[1]));
+        short blockNum = (short) (((short) blockArr[0]) << 8 | (short) (blockArr[1]) & 0x00ff);
         if(readAck > -1 && blockNum == readAck){
             continueRead();
         }
@@ -179,8 +179,16 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void processData(byte[] data, String writeFileName) {
-        writeAck++;
-        if(data.length < CAPACITY){
+        short packetSize = (short) (((short) data[0]) << 8 | (short) (data[1]) & 0x00ff);
+        writeAck = (short) (((short) data[2]) << 8 | (short) (data[3]) & 0x00ff);//the current block number
+        if(TransferHandler.handleData(data, writeFileName)){
+            connections.send(this.connectionId, PacketFactory.createAckPacket((short) writeAck));
+        }
+        else{
+            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 2, errors.get(2)));
+            return;
+        }
+        if(packetSize < CAPACITY){
             sendCast(writeFileName, 1);
         }
     }
