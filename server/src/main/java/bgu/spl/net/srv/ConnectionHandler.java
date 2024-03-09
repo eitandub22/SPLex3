@@ -17,6 +17,6 @@ public interface ConnectionHandler<T> extends Closeable {
      *
      */
 
-    void send(T msg);
+    boolean send(T msg);
 
 }

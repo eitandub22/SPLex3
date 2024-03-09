@@ -51,7 +51,13 @@ public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler
     }
 
     @Override
-    public void send(T msg) {
-        //IMPLEMENT IF NEEDED
+    public boolean send(T msg) {
+        try{
+            sock.getOutputStream().write(encdec.encode(msg));
+            return true;
+        }
+        catch (IOException exception){
+            return false;
+        }
     }
 }
