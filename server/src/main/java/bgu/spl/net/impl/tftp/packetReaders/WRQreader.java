@@ -12,9 +12,9 @@ public class WRQreader extends PacketReader{
 
     public byte[] proccesByte(byte b){
         if(b == 0){
-            byte[] retArr = this.pBuffer.array().clone();
             this.pBuffer.flip();
-            this.pBuffer.clear();
+            byte[] retArr = new byte[this.pBuffer.remaining()];
+            this.pBuffer.get(retArr);
             return retArr;
         }
 
