@@ -171,7 +171,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         if(dirQueue.isEmpty()){
             dirAck = 1;
         }
-        byte[] currentData = TransferHandler.handleDir(this.dirQueue);
+        byte[] currentData = TransferHandler.handleDir(this.dirQueue, uploadingFiles);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
         dirAck++;
         connections.send(this.connectionId, encoderDecoder.encode(dirPacket));
@@ -220,6 +220,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             return;
         }
         this.currentWriteFileName = fileName;
+        uploadingFiles.put(fileName, true);
         writeAck = 0;
         connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short) writeAck)));
     }

@@ -10,23 +10,26 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TransferHandler {
     private static final int CAPACITY = 512;
-    public static byte[] handleDir(Deque<ByteBuffer> dirQueue) {
+    public static byte[] handleDir(Deque<ByteBuffer> dirQueue, ConcurrentHashMap<String, Boolean> uploadingFiles) {
         if(dirQueue.isEmpty()){
             List<String> fileNames = Stream.of(new File("Files").listFiles())
                     .filter(file -> !file.isDirectory())
                     .map(File::getName)
                     .collect(Collectors.toList());
             for(String fileName : fileNames){
-                ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes().length + 1);
-                currentFile.put(fileName.getBytes());
-                currentFile.put((byte) 0);
-                dirQueue.add(currentFile);
+                if(!uploadingFiles.get(fileName)){
+                    ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes().length + 1);
+                    currentFile.put(fileName.getBytes());
+                    currentFile.put((byte) 0);
+                    dirQueue.add(currentFile);
+                }
             }
         }
         int capacity = dirQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
