@@ -20,4 +20,11 @@ public enum Opcodes {
     public int getValue() {
         return value;
     }
+
+    public boolean exists(int val){
+        for(Opcodes opcodes: values()){
+            if(opcodes.getValue() == val) return true;
+        }
+        return false;
+    }
 }

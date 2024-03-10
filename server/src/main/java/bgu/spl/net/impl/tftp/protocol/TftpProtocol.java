@@ -1,6 +1,7 @@
 package bgu.spl.net.impl.tftp.protocol;
 
 import bgu.spl.net.api.BidiMessagingProtocol;
+import bgu.spl.net.impl.tftp.TftpEncoderDecoder;
 import bgu.spl.net.srv.Connections;
 
 import java.io.File;
@@ -26,8 +27,10 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private final Deque<ByteBuffer> readQueue = new ConcurrentLinkedDeque<>();
     private ConcurrentHashMap<String, Integer> loggedUsers;
     private boolean isLogged = false;
-    String currentReadFileName;
-    String currentWriteFileName;
+    private String currentReadFileName;
+    private String currentWriteFileName;
+    private TftpEncoderDecoder encoderDecoder;
+    private ConcurrentHashMap<String, Boolean> uploadingFiles;
     private final int CAPACITY = 512;
     @Override
     public void start(int connectionId, Connections<byte[]> connections) {
@@ -41,9 +44,14 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
     }
 
-    public TftpProtocol(ConcurrentHashMap<String, Integer> loggedUsers){
+    public TftpProtocol(ConcurrentHashMap<String, Integer> loggedUsers, ConcurrentHashMap<String, Boolean> uploadingFiles){
         this.loggedUsers = loggedUsers;
         initErrors();
+        this.uploadingFiles = uploadingFiles;
+    }
+
+    public void setEncoderDecoder(TftpEncoderDecoder encoderDecoder){
+        this.encoderDecoder = encoderDecoder;
     }
 
     @Override
@@ -81,11 +89,16 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
                     processDisconnect();
                     break;
                 default:
-                    connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 4, errors.get(4)));
+                    connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 4, errors.get(4))));
             }
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 6, errors.get(6)));
+            if(!opcodeEnum.exists(opcodeEnum.getValue())){
+                connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 4, errors.get(4))));
+            }
+            else{
+                connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 6, errors.get(6))));
+            }
         }
     }
 
@@ -93,11 +106,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         if(logout()){
             terminate = true;
             isLogged = false;
-            connections.send(this.connectionId, PacketFactory.createAckPacket((short)0));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
             connections.disconnect(this.connectionId);//closing my end of the socket
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 6, errors.get(6)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 6, errors.get(6))));
         }
     }
 
@@ -114,7 +127,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private void sendCast(String fileName, int status) {
         byte[] castPacket = PacketFactory.createBcastPacket(fileName, status);
         for(Map.Entry<String, Integer> user: loggedUsers.entrySet()){
-            connections.send(user.getValue(), castPacket);
+            connections.send(user.getValue(), encoderDecoder.encode(castPacket));
         }
     }
 
@@ -124,24 +137,24 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             Files.deleteIfExists(Paths.get("Files" + "\\" + fileName));
         }
         catch (NoSuchFileException e) {
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short)1, errors.get(1)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)1, errors.get(1))));
             return;
         }
         catch (IOException e) {
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short)2, errors.get(2)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)2, errors.get(2))));
             return;
         }
-        connections.send(this.connectionId, PacketFactory.createAckPacket((short)0));
+        connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
         sendCast(fileName, 0);
     }
 
     private void processLogin(byte[] data) {
         String userName = new String(data, StandardCharsets.UTF_8);
         if(login(userName)){
-            connections.send(this.connectionId ,PacketFactory.createAckPacket((short)0));
+            connections.send(this.connectionId , encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short)7, errors.get(7)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)7, errors.get(7))));
         }
     }
 
@@ -161,7 +174,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         byte[] currentData = TransferHandler.handleDir(this.dirQueue);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
         dirAck++;
-        connections.send(this.connectionId, dirPacket);
+        connections.send(this.connectionId, encoderDecoder.encode(dirPacket));
     }
 
     private void processAck(byte[] data) {
@@ -174,7 +187,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             processDir();
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 0, errors.get(0)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 0, errors.get(0))));
         }
     }
 
@@ -182,10 +195,10 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         short packetSize = (short) (((short) data[0]) << 8 | (short) (data[1]) & 0x00ff);
         writeAck = (short) (((short) data[2]) << 8 | (short) (data[3]) & 0x00ff);//the current block number
         if(TransferHandler.handleData(data, writeFileName)){
-            connections.send(this.connectionId, PacketFactory.createAckPacket((short) writeAck));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short) writeAck)));
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 2, errors.get(2)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         if(packetSize < CAPACITY){
@@ -196,19 +209,19 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private void processWrite(byte[] data) {
         String fileName = new String(data, StandardCharsets.UTF_8);
         if(Files.exists(Paths.get("Files" + "\\" + fileName))){
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 5, errors.get(5)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 5, errors.get(5))));
             return;
         }
         try{
             Files.createFile(Paths.get("Files" + "\\" + fileName));
         }
         catch (IOException exception){
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 2, errors.get(2)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         this.currentWriteFileName = fileName;
         writeAck = 0;
-        connections.send(this.connectionId, PacketFactory.createAckPacket((short) writeAck));
+        connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short) writeAck)));
     }
 
     private void processRead(byte [] data) {
@@ -219,19 +232,19 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             continueRead();
         }
         else{
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 1, errors.get(1)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 1, errors.get(1))));
         }
     }
 
     private void continueRead(){
         byte[] currentData = TransferHandler.handleRead(this.readQueue, this.currentReadFileName);
         if(currentData == null){
-            connections.send(this.connectionId, PacketFactory.createErrorPacket((short) 2, errors.get(2)));
+            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         byte[] filePacket = PacketFactory.createDataPacket(currentData, readAck);
         readAck++;
-        connections.send(this.connectionId, filePacket);
+        connections.send(this.connectionId, encoderDecoder.encode(filePacket));
     }
 
     @Override
