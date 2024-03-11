@@ -6,10 +6,10 @@ import java.net.UnknownHostException;
 import java.util.concurrent.BlockingQueue;
 
 public class Listener implements Runnable{
-    private BlockingQueue<String> messageQueue;
+    private BlockingQueue<byte[]> messageQueue;
     private String host;
 
-    public Listener(BlockingQueue<String> messageQueue, String host){
+    public Listener(BlockingQueue<byte[]> messageQueue, String host){
         this.messageQueue = messageQueue;
         this.host = host;
     }
@@ -19,7 +19,7 @@ public class Listener implements Runnable{
              BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
              BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
             while(!Thread.currentThread().isInterrupted()){
-                String currentMessage = messageQueue.take();
+                byte[] currentMessage = messageQueue.take();
                 //handle message received from keyboard
                     /*out.write(args[1]); write to server
                     out.newLine();

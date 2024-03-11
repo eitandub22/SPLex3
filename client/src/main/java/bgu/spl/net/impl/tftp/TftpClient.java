@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TftpClient {
     public static void main(String[] args) throws InterruptedException {
         boolean run = true;
-        BlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
+        BlockingQueue<byte[]> messageQueue = new LinkedBlockingQueue<>();
         Scanner scanner = new Scanner(System.in);
         Thread ListeningThread = new Thread(new Listener(messageQueue, args[0]));
         Thread KeyboardThread = new Thread(new KeyboardListener(messageQueue));
