@@ -4,9 +4,11 @@ import java.nio.ByteBuffer;
 
 public class DATAreader extends PacketReader{
     public static final short OPTCODE = 3;
+    private static shortBuffer;
 
     public DATAreader(){
         this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 518);
+        private static shortBuffer
     }
 
     public byte[] proccesByte(byte b){
