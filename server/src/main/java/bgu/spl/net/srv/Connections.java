@@ -1,6 +1,9 @@
 package bgu.spl.net.srv;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface Connections<T> {
 
