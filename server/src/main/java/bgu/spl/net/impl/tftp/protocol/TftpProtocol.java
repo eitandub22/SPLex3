@@ -1,6 +1,7 @@
 package bgu.spl.net.impl.tftp.protocol;
 
 import bgu.spl.net.api.BidiMessagingProtocol;
+import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.tftp.TftpEncoderDecoder;
 import bgu.spl.net.srv.Connections;
 
@@ -29,7 +30,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean isLogged = false;
     private String currentReadFileName;
     private String currentWriteFileName;
-    private TftpEncoderDecoder encoderDecoder;
+    private MessageEncoderDecoder<byte[]> encoderDecoder;
     private ConcurrentHashMap<String, Boolean> uploadingFiles;
     private final int CAPACITY = 512;
     @Override
@@ -48,10 +49,6 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         this.loggedUsers = loggedUsers;
         initErrors();
         this.uploadingFiles = uploadingFiles;
-    }
-
-    public void setEncoderDecoder(TftpEncoderDecoder encoderDecoder){
-        this.encoderDecoder = encoderDecoder;
     }
 
     @Override
@@ -251,6 +248,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     @Override
     public boolean shouldTerminate() {
         return terminate;
+    }
+
+    @Override
+    public void setEncoderDecoder(MessageEncoderDecoder<byte[]> encoderDecoder) {
+        this.encoderDecoder = encoderDecoder;
     }
 
 }

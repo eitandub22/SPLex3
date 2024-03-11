@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -25,8 +26,8 @@ public class TransferHandler {
                     .collect(Collectors.toList());
             for(String fileName : fileNames){
                 if(!uploadingFiles.get(fileName)){
-                    ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes().length + 1);
-                    currentFile.put(fileName.getBytes());
+                    ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes(StandardCharsets.UTF_8).length + 1);
+                    currentFile.put(fileName.getBytes(StandardCharsets.UTF_8));
                     currentFile.put((byte) 0);
                     dirQueue.add(currentFile);
                 }

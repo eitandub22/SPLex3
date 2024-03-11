@@ -26,12 +26,12 @@ public class PacketFactory {
     }
 
     public static byte[] createBcastPacket(String fileName, int status) {
-        ByteBuffer bcastPacket = ByteBuffer.allocate(3 + fileName.getBytes().length);
+        ByteBuffer bcastPacket = ByteBuffer.allocate(3 + fileName.getBytes(StandardCharsets.UTF_8).length);
         bcastPacket.put((byte)(0));
         bcastPacket.put((byte) ((short) Opcodes.CAST.getValue() & 0xff));
         bcastPacket.put((byte)((short)status >> 8));
         bcastPacket.put((byte) ((short)status & 0xff));
-        bcastPacket.put(fileName.getBytes());
+        bcastPacket.put(fileName.getBytes(StandardCharsets.UTF_8));
         bcastPacket.put(endByte);
         return bcastPacket.array();
     }
