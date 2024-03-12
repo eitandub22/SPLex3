@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collector;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.impl.tftp.packetReaders.DIRQreader;
 import bgu.spl.net.impl.tftp.packetReaders.PacketReader;
 
 public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
@@ -27,6 +28,7 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 optcodeBuffer.flip();
                 optcode = optcodeBuffer.getShort();
                 optcodeBuffer.clear();
+                if(optcode == DIRQreader.OPTCODE || optcode == 10) return new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)}; //DIR or DISCONNECT
             }
         } else {
             if(pReader == null) pReader = PacketReader.makePacketReader(optcode);
