@@ -5,7 +5,6 @@ import bgu.spl.net.impl.tftp.packets.PacketFactory;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,10 +21,14 @@ public class Listener implements Runnable{
     private String host;
     private MessageEncoderDecoder<byte[]> encoderDecoder;
     private final int CAPACITY = 512;
+    private final int RRQ = 1;
+    private final int WRQ = 2;
     private final int DATA = 3;
     private final int ACK = 4;
     private final int ERROR = 5;
+    private final int DIRQ = 6;
     private final int BCAST = 9;
+    private final int DISC = 10;
 
     public Listener(BlockingQueue<byte[]> messageQueue, String host, MessageEncoderDecoder<byte[]> encoderDecoder){
         this.messageQueue = messageQueue;
@@ -55,7 +58,7 @@ public class Listener implements Runnable{
                             continue;
                     }
                 }
-                if(currentOpcode == 2){
+                if(currentOpcode == WRQ){
                     String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1));
                     writeQueue = handleWrite(fileName);
                 }
@@ -91,14 +94,14 @@ public class Listener implements Runnable{
                             }
                             break;
                         case ERROR:
-                            if(currentOpcode == 1){//RRQ
+                            if(currentOpcode == RRQ){
                                 String fileToDelete = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1));
                                 Files.deleteIfExists(Paths.get(System.getProperty("user.dir") + "\\" + fileToDelete));
                             }
-                            if(currentOpcode == 2){//WRQ
+                            if(currentOpcode == WRQ){
                                 //stop the transfer
                             }
-                            if(currentOpcode == 10){//DISC
+                            if(currentOpcode == DISC){
                                 //dont exist the program
                             }
                             short errCode = (short) (((short) answerBuffer.array()[2]) << 8 | (short) ( answerBuffer.array()[3]) & 0x00ff);
@@ -116,13 +119,13 @@ public class Listener implements Runnable{
                     answerLength = in.read(answerBuffer.array());
                 }
                 if(!transferedData.isEmpty()){
-                    if(currentOpcode == 1){//RRQ
+                    if(currentOpcode == RRQ){
                         String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1), StandardCharsets.UTF_8);
                         while(!transferedData.isEmpty()){
                             Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), transferedData.removeFirst().array(), StandardOpenOption.APPEND);
                         }
                     }
-                    if(currentOpcode == 6){//DIRQ
+                    if(currentOpcode == DIRQ){
                         Queue<String> fileNames = getFileNames(transferedData);
                         while(!fileNames.isEmpty()){
                             System.out.println(fileNames.remove());
