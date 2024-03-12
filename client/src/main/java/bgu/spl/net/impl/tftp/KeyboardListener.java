@@ -33,4 +33,7 @@ public class KeyboardListener implements Runnable{
         }
     }
 
+    public void terminate() {
+        this.run = false;
+    }
 }

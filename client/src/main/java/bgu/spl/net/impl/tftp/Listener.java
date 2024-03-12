@@ -29,6 +29,7 @@ public class Listener implements Runnable{
     private final int DIRQ = 6;
     private final int BCAST = 9;
     private final int DISC = 10;
+    private KeyboardListener keyboardListener;
 
     public Listener(BlockingQueue<byte[]> messageQueue, String host, MessageEncoderDecoder<byte[]> encoderDecoder){
         this.messageQueue = messageQueue;
@@ -84,12 +85,18 @@ public class Listener implements Runnable{
                         case ACK:
                             short blockNum = (short) (((short) answerBuffer.array()[2]) << 8 | (short) (answerBuffer.array()[3]) & 0x00ff);
                             System.out.println("ACK " + blockNum);
+                            if(currentOpcode == DISC && blockNum == 0){
+                                keyboardListener.terminate();
+                                this.notifyAll();//maybe the keyboard thread is sleeping so we want it to wake up ad stop his run
+                                Thread.currentThread().interrupt();
+                            }
                             if(!writeQueue.isEmpty() && writeBlock == blockNum){
                                 writeBlock++;
                                 out.write(encoderDecoder.encode(PacketFactory.createDataPacket(writeQueue.remove(), writeBlock)));
                                 out.flush();
                             }
                             else{
+                                writeBlock = 0;
                                 this.notifyAll();
                             }
                             break;
@@ -99,10 +106,11 @@ public class Listener implements Runnable{
                                 Files.deleteIfExists(Paths.get(System.getProperty("user.dir") + "\\" + fileToDelete));
                             }
                             if(currentOpcode == WRQ){
-                                //stop the transfer
+                                writeQueue.clear();
+                                writeBlock = 0;
                             }
                             if(currentOpcode == DISC){
-                                //dont exist the program
+                                ;
                             }
                             short errCode = (short) (((short) answerBuffer.array()[2]) << 8 | (short) ( answerBuffer.array()[3]) & 0x00ff);
                             String errorMsg = new String(Arrays.copyOfRange(answerBuffer.array(), 3, answerBuffer.array().length - 1), StandardCharsets.UTF_8);
@@ -188,5 +196,9 @@ public class Listener implements Runnable{
             arr[i] = list.get(i);
         }
         return arr;
+    }
+
+    public void setKeyboardListener(KeyboardListener keyboardListener){
+        this.keyboardListener = keyboardListener;
     }
 }
