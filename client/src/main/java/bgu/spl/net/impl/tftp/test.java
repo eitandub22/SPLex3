@@ -1,37 +1,46 @@
 package bgu.spl.net.impl.tftp;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class test {
-    public static byte[] combineLinkedList(LinkedList<ByteBuffer> list) {
-        return list.stream()                            // Stream of ByteBuffer objects
-                .map(ByteBuffer::array)             // Map each ByteBuffer to its array
-                .reduce(new byte[0], test::concatArrays);  // Reduce to combine arrays
-    }
 
-    private static byte[] concatArrays(byte[] a, byte[] b) {
-        byte[] result = new byte[a.length + b.length];
-        System.arraycopy(a, 0, result, 0, a.length);
-        System.arraycopy(b, 0, result, a.length, b.length);
-        return result;
-    }
+    public static int CAPACITY = 512;
     public static void main(String[] args) throws InterruptedException {
-        LinkedList<ByteBuffer> bufferList = new LinkedList<>();
-        bufferList.add(ByteBuffer.wrap(new byte[]{1, 2, 3}));
-        bufferList.add(ByteBuffer.wrap(new byte[]{4, 5}));
-        bufferList.add(ByteBuffer.wrap(new byte[]{6, 7, 8, 9}));
+        Queue<byte[]> q = handleWrite("B");
+        System.out.println(Arrays.toString(q.remove()));
+        System.out.println(Arrays.toString(q.remove()));
+    }
 
-        // Combine ByteBuffer objects into one array using stream
-        byte[] combined = combineLinkedList(bufferList);
-
-        // Print combined array
-        System.out.println("Combined array:");
-        for (byte b : combined) {
-            System.out.print(b + " ");
+    private static Queue<byte[]> handleWrite(String fileName) {
+        Queue<byte[]> dataQueue = new LinkedList<>();
+        try{
+            byte[] fileData = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\" + fileName));
+            System.out.println(fileData.length);
+            int dataLength = fileData.length;
+            int offset = 0 ;
+            while(dataLength/CAPACITY > 0){
+                ByteBuffer currentChunk = ByteBuffer.allocate(CAPACITY);
+                currentChunk.put(fileData, offset, CAPACITY);
+                dataQueue.add(currentChunk.array());
+                currentChunk.clear();
+                offset += CAPACITY;
+                dataLength -= CAPACITY;
+            }
+            ByteBuffer lastChunk = ByteBuffer.allocate(dataLength);
+            lastChunk.put(fileData, offset, dataLength);
+            dataQueue.add(lastChunk.array());
         }
+        catch (IOException e){
+
+        }
+        return dataQueue;
     }
 }

@@ -1,6 +1,7 @@
 package bgu.spl.net.impl.tftp;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.impl.tftp.packets.PacketFactory;
 
 import java.io.*;
 import java.net.Socket;
@@ -37,6 +38,8 @@ public class Listener implements Runnable{
              BufferedInputStream in = new BufferedInputStream(sock.getInputStream());
              BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
             while(!Thread.currentThread().isInterrupted()){
+                Queue<byte[]> writeQueue = new LinkedList<>();
+                int writeBlock = 0;
                 byte[] currentMessage = messageQueue.take();
                 short currentOpcode = (short) (((short) currentMessage[0]) << 8 | (short) (currentMessage[1]) & 0x00ff);
                 if (currentMessage.length == 1) {
@@ -52,6 +55,10 @@ public class Listener implements Runnable{
                             continue;
                     }
                 }
+                if(currentOpcode == 2){
+                    String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1));
+                    writeQueue = handleWrite(fileName);
+                }
                 out.write(encoderDecoder.encode(currentMessage));
                 out.flush();
 
@@ -64,11 +71,18 @@ public class Listener implements Runnable{
                         case DATA:
                             if(answerLength > 0 && answerLength <= CAPACITY){
                                 transferedData.add(ByteBuffer.wrap(answerBuffer.array()));
+                                out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, answerBuffer.array().length))));
+                                out.flush();
                             }
                             break;
                         case ACK:
                             short blockNum = (short) (((short) answerBuffer.array()[2]) << 8 | (short) (answerBuffer.array()[3]) & 0x00ff);
                             System.out.println("ACK " + blockNum);
+                            if(!writeQueue.isEmpty() && writeBlock == blockNum){
+                                writeBlock++;
+                                out.write(encoderDecoder.encode(PacketFactory.createDataPacket(writeQueue.remove(), writeBlock)));
+                                out.flush();
+                            }
                             break;
                         case ERROR:
                             if(currentOpcode == 1){//RRQ
@@ -113,6 +127,30 @@ public class Listener implements Runnable{
             System.out.println(e.getCause());
             throw new RuntimeException(e);
         }
+    }
+
+    private Queue<byte[]> handleWrite(String fileName) {
+        Queue<byte[]> dataQueue = new LinkedList<>();
+        try{
+            byte[] fileData = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\" + fileName));
+            int dataLength = fileData.length;
+            int offset = 0 ;
+            while(dataLength/CAPACITY > 0){
+                ByteBuffer currentChunk = ByteBuffer.allocate(CAPACITY);
+                currentChunk.put(fileData, offset, CAPACITY);
+                dataQueue.add(currentChunk.array());
+                currentChunk.clear();
+                offset += CAPACITY;
+                dataLength -= CAPACITY;
+            }
+            ByteBuffer lastChunk = ByteBuffer.allocate(dataLength);
+            lastChunk.put(fileData, offset, dataLength);
+            dataQueue.add(lastChunk.array());
+        }
+        catch (IOException e){
+
+        }
+        return dataQueue;
     }
 
     private Queue<String> getFileNames(LinkedList<ByteBuffer> list) {

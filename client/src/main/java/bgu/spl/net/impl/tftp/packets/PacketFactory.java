@@ -50,4 +50,12 @@ public class PacketFactory {
         packetBuffer.put((byte) (10 & 0xff));
         return packetBuffer.array();
     }
+
+    public static byte[] createAckPacket(byte[] dataBlockNum) {
+        ByteBuffer packetBuffer = ByteBuffer.allocate(4);
+        packetBuffer.put((byte) 0);
+        packetBuffer.put((byte) (4 & 0xff));
+        packetBuffer.put(dataBlockNum);
+        return packetBuffer.array();
+    }
 }
