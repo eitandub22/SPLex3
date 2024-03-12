@@ -28,7 +28,7 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 optcodeBuffer.flip();
                 optcode = optcodeBuffer.getShort();
                 optcodeBuffer.clear();
-                if(optcode == DIRQreader.OPTCODE || optcode == 10) return new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)}; //DIR or DISCONNECT
+                if(optcode == DIRQreader.OPTCODE || optcode == DIRQreader.OPTCODE) return new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)}; //DIR or DISCONNECT
             }
         } else {
             if(pReader == null) pReader = PacketReader.makePacketReader(optcode);
