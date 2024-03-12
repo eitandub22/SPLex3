@@ -1,5 +1,7 @@
 package bgu.spl.net.impl.tftp.packetReaders;
 
+import java.nio.ByteBuffer;
+
 public class BCASTreader extends PacketReader{
     public static final short OPTCODE = 9;
 

@@ -14,6 +14,25 @@ public abstract class PacketReader{
         switch (optcode) {
             case RRQreader.OPTCODE:
                 return new RRQreader();
+            case WRQreader.OPTCODE:
+                return new WRQreader();
+            case DATAreader.OPTCODE:
+                return new DATAreader();
+            case ACKreader.OPTCODE:
+                return new ACKreader();
+            case ERRORreader.OPTCODE:    
+                return new ERRORreader();
+            case LOGRQreader.OPTCODE:   
+                return new LOGRQreader();
+            case DELRQreader.OPTCODE:
+                return new DELRQreader();
+            case DIRQreader.OPTCODE:
+                return new DIRQreader();
+            case BCASTreader.OPTCODE:
+                return new BCASTreader();
+            case DISCreader.OPTCODE:
+                return new DISCreader();
+            
             default:
                 return null;
         }
