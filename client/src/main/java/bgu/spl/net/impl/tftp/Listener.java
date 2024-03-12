@@ -39,7 +39,7 @@ public class Listener implements Runnable{
              BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
             while(!Thread.currentThread().isInterrupted()){
                 Queue<byte[]> writeQueue = new LinkedList<>();
-                int writeBlock = 0;
+                short writeBlock = 0;
                 byte[] currentMessage = messageQueue.take();
                 short currentOpcode = (short) (((short) currentMessage[0]) << 8 | (short) (currentMessage[1]) & 0x00ff);
                 if (currentMessage.length == 1) {
@@ -74,6 +74,9 @@ public class Listener implements Runnable{
                                 out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, answerBuffer.array().length))));
                                 out.flush();
                             }
+                            else{
+                                this.notifyAll();
+                            }
                             break;
                         case ACK:
                             short blockNum = (short) (((short) answerBuffer.array()[2]) << 8 | (short) (answerBuffer.array()[3]) & 0x00ff);
@@ -82,6 +85,9 @@ public class Listener implements Runnable{
                                 writeBlock++;
                                 out.write(encoderDecoder.encode(PacketFactory.createDataPacket(writeQueue.remove(), writeBlock)));
                                 out.flush();
+                            }
+                            else{
+                                this.notifyAll();
                             }
                             break;
                         case ERROR:
@@ -98,10 +104,12 @@ public class Listener implements Runnable{
                             short errCode = (short) (((short) answerBuffer.array()[2]) << 8 | (short) ( answerBuffer.array()[3]) & 0x00ff);
                             String errorMsg = new String(Arrays.copyOfRange(answerBuffer.array(), 3, answerBuffer.array().length - 1), StandardCharsets.UTF_8);
                             System.out.println("Error " + String.valueOf(errCode) + " " + errorMsg);
+                            this.notifyAll();
                             break;
                         case BCAST:
                             String fileName = new String(Arrays.copyOfRange(answerBuffer.array(), 3, answerBuffer.array().length - 1), StandardCharsets.UTF_8);
                             System.out.println("BCAST " + (answerBuffer.array()[2] == 0?" del ":" add ") + fileName);
+                            this.notifyAll();
                             break;
                     }
                     answerBuffer.clear();
@@ -111,7 +119,7 @@ public class Listener implements Runnable{
                     if(currentOpcode == 1){//RRQ
                         String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1), StandardCharsets.UTF_8);
                         while(!transferedData.isEmpty()){
-                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), transferedData.getFirst().array(), StandardOpenOption.APPEND);
+                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), transferedData.removeFirst().array(), StandardOpenOption.APPEND);
                         }
                     }
                     if(currentOpcode == 6){//DIRQ
@@ -120,6 +128,7 @@ public class Listener implements Runnable{
                             System.out.println(fileNames.remove());
                         }
                     }
+                    this.notifyAll();
                 }
             }
         }

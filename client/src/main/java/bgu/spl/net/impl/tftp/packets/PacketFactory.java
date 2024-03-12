@@ -58,4 +58,15 @@ public class PacketFactory {
         packetBuffer.put(dataBlockNum);
         return packetBuffer.array();
     }
+
+    public static byte[] createDataPacket(byte[] data, short blockNum) {
+        ByteBuffer packetBuffer = ByteBuffer.allocate(6 + data.length);
+        packetBuffer.put((byte) 0);
+        packetBuffer.put((byte) (3 & 0xff));
+        byte [] block_num = new byte []{(byte) (blockNum >> 8) , (byte) (blockNum & 0xff)};
+        packetBuffer.put(ByteBuffer.allocate(2).putShort((short) data.length).array());
+        packetBuffer.put(block_num);
+        packetBuffer.put(data);
+        return packetBuffer.array();
+    }
 }

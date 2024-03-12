@@ -11,11 +11,13 @@ public class KeyboardListener implements Runnable{
     private BlockingQueue<byte[]> messageQueue;
     private Scanner scanner;
     private TftpClientProtocol protocol;
+    Listener listener;
 
-    public KeyboardListener(BlockingQueue<byte[]> messageQueue, TftpClientProtocol protocol){
+    public KeyboardListener(BlockingQueue<byte[]> messageQueue, TftpClientProtocol protocol, Listener listener){
         this.messageQueue = messageQueue;
         this.scanner = new Scanner(System.in);
         this.protocol = protocol;
+        this.listener = listener;
 
     }
     @Override
@@ -24,6 +26,7 @@ public class KeyboardListener implements Runnable{
             String message = scanner.next();
             try {
                 messageQueue.put(protocol.process(message.getBytes()));
+                listener.wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
