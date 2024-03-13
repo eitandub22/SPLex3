@@ -28,13 +28,8 @@ public class TransferHandler {
                 ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes(StandardCharsets.UTF_8).length + 1);
                 currentFile.put(fileName.getBytes(StandardCharsets.UTF_8));
                 currentFile.put((byte) 0);
-                if(uploadingFiles.isEmpty()){
+                if(uploadingFiles.isEmpty() || !uploadingFiles.containsKey(fileName)){
                     dirQueue.add(currentFile);
-                }
-                else{
-                    if(!uploadingFiles.containsKey(fileName)){
-                        dirQueue.add(currentFile);
-                    }
                 }
             }
         }

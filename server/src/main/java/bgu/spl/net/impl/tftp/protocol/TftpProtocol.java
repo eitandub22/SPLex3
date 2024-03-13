@@ -54,6 +54,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     public void process(byte[] message) {
         short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]) & 0x00ff);
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
+        System.out.println("opcode: " + opcodeEnum.getValue());//!TODO: remove
         if(isLogged){
             switch (opcodeEnum){
                 case READ:
@@ -174,6 +175,12 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
         byte[] currentData = TransferHandler.handleDir(this.dirQueue, uploadingFiles);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
+        for(byte b : dirPacket){
+            if(b == 0 || b == 3 || b==51){
+                System.out.print(b);
+            }
+            System.out.print((char)b);//!TODO: remove
+        }
         dirAck++;
         connections.send(this.connectionId, (dirPacket));
     }

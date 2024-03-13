@@ -38,8 +38,8 @@ public class PacketFactory {
 
     public static byte[] createDataPacket(byte[] data, int blockNumber){
         ByteBuffer dataPacket = ByteBuffer.allocate(6 + data.length);
-        ByteBuffer blockNum = ByteBuffer.allocate(2).putShort((short) blockNumber);
-        ByteBuffer packetSize = ByteBuffer.allocate(2).putShort((short) data.length);
+        ByteBuffer blockNum = ByteBuffer.wrap(new byte[]{0, (byte) (blockNumber & 0xff)});
+        ByteBuffer packetSize = ByteBuffer.wrap(new byte[]{0, (byte) (data.length & 0xff)});
         dataPacket.put((byte)(0));
         dataPacket.put((byte) ((short) Opcodes.DATA.getValue() & 0xff));
         dataPacket.put(packetSize);
