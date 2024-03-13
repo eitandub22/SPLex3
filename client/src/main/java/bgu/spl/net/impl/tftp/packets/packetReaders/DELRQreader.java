@@ -5,7 +5,9 @@ import java.nio.ByteBuffer;
 public class DELRQreader extends PacketReader{
     public static final short OPTCODE = 8;
     public DELRQreader(){
-        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 518);
+        this.pBuffer = ByteBuffer.allocate(518);
+        this.pBuffer.put((byte) 0);
+        this.pBuffer.put((byte) OPTCODE);
     }
     public byte[] proccesByte(byte b){
         if(b == 0){
