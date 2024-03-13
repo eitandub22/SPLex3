@@ -23,7 +23,7 @@ public class TftpClient {
         listener.setKeyboardListener(keyboardListener);
         Thread ListeningThread = new Thread(listener);
         Thread KeyboardThread = new Thread(keyboardListener);
-        KeyboardThread.run();
-        ListeningThread.run();
+        KeyboardThread.start();
+        ListeningThread.start();
     }
 }

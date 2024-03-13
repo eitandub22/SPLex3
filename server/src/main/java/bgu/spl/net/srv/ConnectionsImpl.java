@@ -3,7 +3,7 @@ package bgu.spl.net.srv;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionsImpl<T> implements Connections<T>{
-    private ConcurrentHashMap<Integer, ConnectionHandler<T>> activeConnections;
+    private ConcurrentHashMap<Integer, ConnectionHandler<T>> activeConnections = new ConcurrentHashMap<>();
     @Override
     public void connect(int connectionId, ConnectionHandler<T> handler) {
         this.activeConnections.put(connectionId, handler);
