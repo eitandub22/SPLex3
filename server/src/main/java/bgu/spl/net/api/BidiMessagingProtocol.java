@@ -15,5 +15,4 @@ public interface BidiMessagingProtocol<T>  {
      */
     boolean shouldTerminate();
 
-	void setEncoderDecoder(MessageEncoderDecoder<T> encoderDecoder);
 }

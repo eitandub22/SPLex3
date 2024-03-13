@@ -2,7 +2,6 @@ package bgu.spl.net.impl.tftp;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.tftp.packets.PacketFactory;
-
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -10,10 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 public class Listener implements Runnable{
@@ -79,10 +75,9 @@ public class Listener implements Runnable{
 
                 ByteBuffer answerBuffer = ByteBuffer.allocate(CAPACITY);
                 LinkedList<ByteBuffer> transferedData = new LinkedList<>();
-                short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
-                int answerLength = in.read(answerBuffer.array());
-                System.out.println("got here");
-                while(answerLength != -1){
+                while(in.available() > 0){
+                    int answerLength = in.read(answerBuffer.array());
+                    short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
                     switch (answerOpcode){
                         case DATA:
                             if(answerLength > 0 && answerLength <= CAPACITY){
@@ -102,8 +97,8 @@ public class Listener implements Runnable{
                             if(currentOpcode == DISC && blockNum == 0){
                                 keyboardListener.terminate();
                                 synchronized (this){
-                                this.notifyAll();
-                            };//maybe the keyboard thread is sleeping so we want it to wake up ad stop his run
+                                    this.notifyAll();
+                                }//maybe the keyboard thread is sleeping so we want it to wake up ad stop his run
                                 Thread.currentThread().interrupt();
                             }
                             if(!writeQueue.isEmpty() && writeBlock == blockNum){
@@ -114,8 +109,8 @@ public class Listener implements Runnable{
                             else{
                                 writeBlock = 0;
                                 synchronized (this){
-                                this.notifyAll();
-                            };
+                                    this.notifyAll();
+                                }
                             }
                             break;
                         case ERROR:
@@ -146,7 +141,6 @@ public class Listener implements Runnable{
                             break;
                     }
                     answerBuffer.clear();
-                    answerLength = in.read(answerBuffer.array());
                 }
                 if(!transferedData.isEmpty()){
                     if(currentOpcode == RRQ){

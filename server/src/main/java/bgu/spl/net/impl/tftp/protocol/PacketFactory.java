@@ -26,25 +26,25 @@ public class PacketFactory {
     }
 
     public static byte[] createBcastPacket(String fileName, int status) {
-        ByteBuffer bcastPacket = ByteBuffer.allocate(3 + fileName.getBytes(StandardCharsets.UTF_8).length);
+        ByteBuffer bcastPacket = ByteBuffer.allocate(4 + fileName.getBytes(StandardCharsets.UTF_8).length);
+        System.out.println(bcastPacket.capacity());
         bcastPacket.put((byte)(0));
         bcastPacket.put((byte) ((short) Opcodes.CAST.getValue() & 0xff));
-        bcastPacket.put((byte)((short)status >> 8));
-        bcastPacket.put((byte) ((short)status & 0xff));
+        bcastPacket.put((byte) status);
         bcastPacket.put(fileName.getBytes(StandardCharsets.UTF_8));
         bcastPacket.put(endByte);
         return bcastPacket.array();
     }
 
     public static byte[] createDataPacket(byte[] data, int blockNumber){
-        ByteBuffer dirPacket = ByteBuffer.allocate(6 + data.length);
-        ByteBuffer blockNum = ByteBuffer.allocate(2).putInt(blockNumber);
-        ByteBuffer packetSize = ByteBuffer.allocate(2).putInt(data.length);
-        dirPacket.put((byte)(0));
-        dirPacket.put((byte) ((short) Opcodes.DATA.getValue() & 0xff));
-        dirPacket.put(packetSize);
-        dirPacket.put(blockNum);
-        dirPacket.put(data);
-        return dirPacket.array();
+        ByteBuffer dataPacket = ByteBuffer.allocate(6 + data.length);
+        ByteBuffer blockNum = ByteBuffer.allocate(2).putShort((short) blockNumber);
+        ByteBuffer packetSize = ByteBuffer.allocate(2).putShort((short) data.length);
+        dataPacket.put((byte)(0));
+        dataPacket.put((byte) ((short) Opcodes.DATA.getValue() & 0xff));
+        dataPacket.put(packetSize);
+        dataPacket.put(blockNum);
+        dataPacket.put(data);
+        return dataPacket.array();
     }
 }

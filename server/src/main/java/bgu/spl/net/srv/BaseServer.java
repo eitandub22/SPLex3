@@ -50,7 +50,6 @@ public abstract class BaseServer<T> implements Server<T> {
                         encoderDecoder,
                         protocol);
                 protocol.start(this.connectionId, connections);
-                protocol.setEncoderDecoder(encoderDecoder);
                 connections.connect(this.connectionId, handler);
                 this.connectionId++;
                 execute(handler);

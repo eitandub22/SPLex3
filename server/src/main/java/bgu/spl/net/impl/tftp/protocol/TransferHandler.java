@@ -25,21 +25,29 @@ public class TransferHandler {
                     .map(File::getName)
                     .collect(Collectors.toList());
             for(String fileName : fileNames){
-                if(!uploadingFiles.get(fileName)){
-                    ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes(StandardCharsets.UTF_8).length + 1);
-                    currentFile.put(fileName.getBytes(StandardCharsets.UTF_8));
-                    currentFile.put((byte) 0);
+                ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes(StandardCharsets.UTF_8).length + 1);
+                currentFile.put(fileName.getBytes(StandardCharsets.UTF_8));
+                currentFile.put((byte) 0);
+                if(uploadingFiles.isEmpty()){
                     dirQueue.add(currentFile);
+                }
+                else{
+                    if(!uploadingFiles.containsKey(fileName)){
+                        dirQueue.add(currentFile);
+                    }
                 }
             }
         }
         int capacity = dirQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
         ByteBuffer currentFile = dirQueue.peek();
         ByteBuffer currentData = capacity/CAPACITY > 0 ? ByteBuffer.allocate(CAPACITY) : ByteBuffer.allocate(capacity);
-        while(currentData.position() < CAPACITY){
+        while(currentData.position() < currentData.capacity()){
             int oldPos = currentData.position();
             currentData.put(currentFile.array(), 0, Math.min(currentData.capacity() - currentData.position(), currentFile.capacity()));
-            if(currentData.position() == oldPos + currentFile.capacity()) dirQueue.remove();
+            if(currentData.position() == oldPos + currentFile.capacity()){
+                dirQueue.remove();
+                currentFile = dirQueue.peek();
+            }
             else{
                 byte[] reminder = dirQueue.remove().array();
                 reminder = Arrays.copyOfRange(reminder, currentData.capacity() - currentData.position(), reminder.length);
@@ -52,8 +60,8 @@ public class TransferHandler {
     public static byte[] handleRead(Deque<ByteBuffer> readQueue, String filename){
         if(readQueue.isEmpty()){
             try{
-                FileInputStream  fileInputStream = new FileInputStream("Files" + "\\" + filename);
-                long fileLength = new File("Files" + "\\" + filename).length();
+                FileInputStream  fileInputStream = new FileInputStream("Files/" + filename);
+                long fileLength = new File("Files/" + filename).length();
                 byte[] currentChunk = fileLength/CAPACITY > 0 ? new byte[CAPACITY] : new byte[(int) fileLength];
                 while ((fileInputStream.read(currentChunk)) != -1) {
                     readQueue.add(ByteBuffer.wrap(currentChunk));
@@ -68,26 +76,29 @@ public class TransferHandler {
                 return null;
             }
         }
-        int capacity = readQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
+        /*int capacity = readQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
         ByteBuffer currentFile = readQueue.peek();
         ByteBuffer currentData = capacity/CAPACITY > 0 ? ByteBuffer.allocate(CAPACITY) : ByteBuffer.allocate(capacity);
-        while(currentData.position() < CAPACITY){
+        while(currentData.position() < currentData.capacity()){
             int oldPos = currentData.position();
             currentData.put(currentFile.array(), 0, Math.min(currentData.capacity() - currentData.position(), currentFile.capacity()));
-            if(currentData.position() == oldPos + currentFile.capacity()) readQueue.remove();
+            if(currentData.position() == oldPos + currentFile.capacity()){
+                readQueue.remove();
+                currentFile = readQueue.peek();
+            }
             else{
                 byte[] reminder = readQueue.remove().array();
                 reminder = Arrays.copyOfRange(reminder, currentData.capacity() - currentData.position(), reminder.length);
                 readQueue.addFirst(ByteBuffer.wrap(reminder));
             }
-        }
-        return currentData.array();
+        }*/
+        return readQueue.remove().array();
     }
 
     public static boolean handleData(byte[] data, String fileName){
         byte[] fileData = Arrays.copyOfRange(data, 4, data.length);
         try{
-            Files.write(Paths.get("Files" + "\\" + fileName), fileData, java.nio.file.StandardOpenOption.APPEND);
+            Files.write(Paths.get("Files/" + fileName), fileData, java.nio.file.StandardOpenOption.APPEND);
         }
         catch (IOException exception){
             return false;

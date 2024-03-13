@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 public class TftpServer{
-    private static ConcurrentHashMap<String, Integer> loggedUsers;
-    private static ConcurrentHashMap<String, Boolean> uploadingFiles;
+    private static ConcurrentHashMap<String, Integer> loggedUsers = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, Boolean> uploadingFiles = new ConcurrentHashMap<>();
     public static void main(String[] args){
         Server.threadPerClient(
                 7777, //port

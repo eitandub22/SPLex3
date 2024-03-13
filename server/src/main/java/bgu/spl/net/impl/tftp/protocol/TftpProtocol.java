@@ -30,7 +30,6 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean isLogged = false;
     private String currentReadFileName;
     private String currentWriteFileName;
-    private MessageEncoderDecoder<byte[]> encoderDecoder;
     private ConcurrentHashMap<String, Boolean> uploadingFiles;
     private final int CAPACITY = 512;
     @Override
@@ -58,11 +57,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         if(isLogged){
             switch (opcodeEnum){
                 case READ:
-                    message = Arrays.copyOfRange(message, 2, message.length - 1);
+                    message = Arrays.copyOfRange(message, 2, message.length);
                     processRead(message);
                     break;
                 case WRITE:
-                    message = Arrays.copyOfRange(message, 2, message.length - 1);
+                    message = Arrays.copyOfRange(message, 2, message.length);
                     processWrite(message);
                     break;
                 case DATA:
@@ -75,26 +74,29 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
                 case DIR:
                     processDir();
                     break;
-                case LOGIN:
-                    message = Arrays.copyOfRange(message, 2, message.length - 1);
-                    processLogin(message);
-                    break;
                 case DELETE:
                     processDelete(message);
+                    break;
+                case LOGIN:
+                    connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 7, errors.get(7))));
                     break;
                 case DISCONNECT:
                     processDisconnect();
                     break;
                 default:
-                    connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 4, errors.get(4))));
+                    connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 4, errors.get(4))));
             }
         }
         else{
-            if(!opcodeEnum.exists(opcodeEnum.getValue())){
-                connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 4, errors.get(4))));
+            if(opcodeEnum == Opcodes.LOGIN){
+                message = Arrays.copyOfRange(message, 2, message.length - 1);
+                processLogin(message);
+            }
+            else if(!opcodeEnum.exists(opcodeEnum.getValue())){
+                connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 4, errors.get(4))));
             }
             else{
-                connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 6, errors.get(6))));
+                connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 6, errors.get(6))));
             }
         }
     }
@@ -103,11 +105,12 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         if(logout()){
             terminate = true;
             isLogged = false;
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
+            System.out.println("disconnecting");
+            connections.send(this.connectionId, (PacketFactory.createAckPacket((short)0)));
             connections.disconnect(this.connectionId);//closing my end of the socket
         }
         else{
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 6, errors.get(6))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 6, errors.get(6))));
         }
     }
 
@@ -124,34 +127,35 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private void sendCast(String fileName, int status) {
         byte[] castPacket = PacketFactory.createBcastPacket(fileName, status);
         for(Map.Entry<String, Integer> user: loggedUsers.entrySet()){
-            connections.send(user.getValue(), encoderDecoder.encode(castPacket));
+            connections.send(user.getValue(), (castPacket));
         }
     }
 
     private void processDelete(byte[] data) {
-        String fileName = new String(data, StandardCharsets.UTF_8);
+        String fileName = new String(Arrays.copyOfRange(data, 2, data.length), StandardCharsets.UTF_8);
         try {
-            Files.deleteIfExists(Paths.get("Files" + "\\" + fileName));
+            Files.deleteIfExists(Paths.get("Files/" + fileName));
         }
         catch (NoSuchFileException e) {
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)1, errors.get(1))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short)1, errors.get(1))));
             return;
         }
         catch (IOException e) {
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)2, errors.get(2))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short)2, errors.get(2))));
             return;
         }
-        connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
+        connections.send(this.connectionId, (PacketFactory.createAckPacket((short)0)));
         sendCast(fileName, 0);
     }
 
     private void processLogin(byte[] data) {
         String userName = new String(data, StandardCharsets.UTF_8);
         if(login(userName)){
-            connections.send(this.connectionId , encoderDecoder.encode(PacketFactory.createAckPacket((short)0)));
+            connections.send(this.connectionId , (PacketFactory.createAckPacket((short)0)));
+            isLogged = true;
         }
         else{
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short)7, errors.get(7))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short)7, errors.get(7))));
         }
     }
 
@@ -171,7 +175,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         byte[] currentData = TransferHandler.handleDir(this.dirQueue, uploadingFiles);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
         dirAck++;
-        connections.send(this.connectionId, encoderDecoder.encode(dirPacket));
+        connections.send(this.connectionId, (dirPacket));
     }
 
     private void processAck(byte[] data) {
@@ -184,7 +188,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
             processDir();
         }
         else{
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 0, errors.get(0))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 0, errors.get(0))));
         }
     }
 
@@ -192,10 +196,10 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         short packetSize = (short) (((short) data[0]) << 8 | (short) (data[1]) & 0x00ff);
         writeAck = (short) (((short) data[2]) << 8 | (short) (data[3]) & 0x00ff);//the current block number
         if(TransferHandler.handleData(data, writeFileName)){
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short) writeAck)));
+            connections.send(this.connectionId, (PacketFactory.createAckPacket((short) writeAck)));
         }
         else{
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         if(packetSize < CAPACITY){
@@ -205,54 +209,49 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
 
     private void processWrite(byte[] data) {
         String fileName = new String(data, StandardCharsets.UTF_8);
-        if(Files.exists(Paths.get("Files" + "\\" + fileName))){
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 5, errors.get(5))));
+        if(Files.exists(Paths.get("Files/" + fileName))){
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 5, errors.get(5))));
             return;
         }
         try{
-            Files.createFile(Paths.get("Files" + "\\" + fileName));
+            Files.createFile(Paths.get("Files/" + fileName));
         }
         catch (IOException exception){
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         this.currentWriteFileName = fileName;
         uploadingFiles.put(fileName, true);
         writeAck = 0;
-        connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createAckPacket((short) writeAck)));
+        connections.send(this.connectionId, (PacketFactory.createAckPacket((short) writeAck)));
     }
 
     private void processRead(byte [] data) {
         readAck = 1;
         String fileName = new String(data,  StandardCharsets.UTF_8);
         this.currentReadFileName = fileName;
-        if(Files.exists(Paths.get("Files" + "\\" + fileName))){
+        if(Files.exists(Paths.get("Files/" + fileName))){
             continueRead();
         }
         else{
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 1, errors.get(1))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 1, errors.get(1))));
         }
     }
 
     private void continueRead(){
         byte[] currentData = TransferHandler.handleRead(this.readQueue, this.currentReadFileName);
         if(currentData == null){
-            connections.send(this.connectionId, encoderDecoder.encode(PacketFactory.createErrorPacket((short) 2, errors.get(2))));
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 2, errors.get(2))));
             return;
         }
         byte[] filePacket = PacketFactory.createDataPacket(currentData, readAck);
         readAck++;
-        connections.send(this.connectionId, encoderDecoder.encode(filePacket));
+        connections.send(this.connectionId, (filePacket));
     }
 
     @Override
     public boolean shouldTerminate() {
         return terminate;
-    }
-
-    @Override
-    public void setEncoderDecoder(MessageEncoderDecoder<byte[]> encoderDecoder) {
-        this.encoderDecoder = encoderDecoder;
     }
 
 }

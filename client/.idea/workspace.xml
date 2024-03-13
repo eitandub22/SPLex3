@@ -5,22 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="34ffc6c7-4017-4545-85d9-0f64b1c3cfce" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ACKreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/BCASTreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DATAreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DELRQreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DIRQreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DISCreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ERRORreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/LOGRQreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/PacketReader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/RRQreader.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/WRQreader.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.iml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/Listener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/Listener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpClientProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpClientProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../server/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../server/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../server/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/server.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/BaseServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/BaseServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/BlockingConnectionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/BlockingConnectionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/ConnectionsImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/srv/ConnectionsImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/TftpServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/TftpServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/packetReaders/LOGRQreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/packetReaders/LOGRQreader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,12 +52,13 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.TftpClient.executor": "Run",
+    "Application.test.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "debug/develop",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client",
+    "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client/src/main/java/bgu/spl/net/impl/tftp/packets",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -64,6 +68,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\USER\Desktop\university\second_year\first_semester\SPL\Projects\SPLex3\client\src\main\java\bgu\spl\net\impl\tftp\packets" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="TftpClient" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="bgu.spl.net.impl.tftp.TftpClient" />
@@ -108,7 +117,8 @@
       <workItem from="1710148285052" duration="3126000" />
       <workItem from="1710166509020" duration="3000" />
       <workItem from="1710277297656" duration="4000" />
-      <workItem from="1710310356180" duration="8973000" />
+      <workItem from="1710310356180" duration="9033000" />
+      <workItem from="1710347328905" duration="7203000" />
     </task>
     <servers />
   </component>

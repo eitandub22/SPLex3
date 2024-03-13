@@ -12,7 +12,7 @@ public class KeyboardListener implements Runnable{
     private BlockingQueue<byte[]> messageQueue;
     private Scanner scanner;
     private TftpClientProtocol protocol;
-    Listener listener;
+    final Listener listener;
 
     public KeyboardListener(BlockingQueue<byte[]> messageQueue, TftpClientProtocol protocol, Listener listener){
         this.messageQueue = messageQueue;
@@ -27,7 +27,7 @@ public class KeyboardListener implements Runnable{
             System.out.print("Enter Command: ");
             String message = scanner.nextLine();
             try {
-                messageQueue.put(protocol.process(message.getBytes()));
+                messageQueue.put(protocol.process(message.getBytes(StandardCharsets.UTF_8)));
                 synchronized (listener){
                     listener.wait();
                 }

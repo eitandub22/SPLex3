@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.tftp.packetReaders;
+package bgu.spl.net.impl.tftp.packets.packetReaders;
 
 import java.nio.ByteBuffer;
 
@@ -9,9 +9,7 @@ public class DATAreader extends PacketReader{
     private ByteBuffer shortBuffer;
 
     public DATAreader(){
-        this.pBuffer = ByteBuffer.allocate(518);
-        this.pBuffer.put((byte) 0);
-        this.pBuffer.put((byte) OPTCODE);
+        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 518);
         this.shortBuffer = ByteBuffer.allocate(2);
         this.pNum = -1;
         this.size = -1;

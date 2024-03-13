@@ -1,4 +1,4 @@
-package bgu.spl.net.impl.tftp.packetReaders;
+package bgu.spl.net.impl.tftp.packets.packetReaders;
 
 import java.nio.ByteBuffer;
 
@@ -6,9 +6,7 @@ public class ACKreader extends PacketReader{
     public static final short OPTCODE = 4;
 
     public ACKreader(){
-        this.pBuffer = ByteBuffer.allocate(4);
-        this.pBuffer.put((byte) 0);
-        this.pBuffer.put((byte) OPTCODE);
+        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 4);
     }
 
     public byte[] proccesByte(byte b){
