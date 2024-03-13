@@ -4,14 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa4f017a-41eb-4987-93a1-e2583f3423f4" name="Changes" comment="removed all callbacks">
-      <change afterPath="$PROJECT_DIR$/../client/target/maven-archiver/pom.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/srv/BaseServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/srv/BaseServer.java" afterDir="false" />
-    </list>
+    <list default="true" id="aa4f017a-41eb-4987-93a1-e2583f3423f4" name="Changes" comment="removed all callbacks" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -66,7 +59,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "extract.method.default.visibility": "private",
-    "git-widget-placeholder": "Merging debug/develop",
+    "git-widget-placeholder": "debug/develop",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client",
     "node.js.detected.package.eslint": "true",
@@ -144,7 +137,7 @@
       <workItem from="1710107659143" duration="5000" />
       <workItem from="1710148510237" duration="112000" />
       <workItem from="1710182354337" duration="148000" />
-      <workItem from="1710347557454" duration="13474000" />
+      <workItem from="1710347557454" duration="14119000" />
     </task>
     <task id="LOCAL-00001" summary="started TftpProtocol">
       <option name="closed" value="true" />

@@ -6,7 +6,9 @@ public class ACKreader extends PacketReader{
     public static final short OPTCODE = 4;
 
     public ACKreader(){
-        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 4);
+        this.pBuffer = ByteBuffer.allocate(4);
+        this.pBuffer.put((byte) 0);
+        this.pBuffer.put((byte) OPTCODE);
     }
 
     public byte[] proccesByte(byte b){

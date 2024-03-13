@@ -9,7 +9,9 @@ public class DATAreader extends PacketReader{
     private ByteBuffer shortBuffer;
 
     public DATAreader(){
-        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 518);
+        this.pBuffer = ByteBuffer.allocate(518);
+        this.pBuffer.put((byte) 0);
+        this.pBuffer.put((byte) OPTCODE);
         this.shortBuffer = ByteBuffer.allocate(2);
         this.pNum = -1;
         this.size = -1;

@@ -8,7 +8,9 @@ public class ERRORreader extends PacketReader{
     private short errorCode;
 
     public ERRORreader(){
-        this.pBuffer = ByteBuffer.wrap(new byte[]{0,OPTCODE}, 2, 518);
+        this.pBuffer = ByteBuffer.allocate(518);
+        this.pBuffer.put((byte) 0);
+        this.pBuffer.put((byte) OPTCODE);
         this.shortBuffer = ByteBuffer.allocate(2);
         this.errorCode = -1;
     }
