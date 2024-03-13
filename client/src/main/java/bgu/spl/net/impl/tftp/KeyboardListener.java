@@ -3,6 +3,7 @@ package bgu.spl.net.impl.tftp;
 import bgu.spl.net.impl.tftp.packets.PacketFactory;
 
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
@@ -23,10 +24,13 @@ public class KeyboardListener implements Runnable{
     @Override
     public void run() {
         while(run){
-            String message = scanner.next();
+            System.out.print("Enter Command: ");
+            String message = scanner.nextLine();
             try {
                 messageQueue.put(protocol.process(message.getBytes()));
-                listener.wait();
+                synchronized (listener){
+                    listener.wait();
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

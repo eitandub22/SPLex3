@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +32,7 @@ public class TftpClientProtocol implements MessagingProtocol<byte[]> {
         String[] splitedCommand = command.split(" ");
         if(splitedCommand.length == 0) return new byte[]{0};
         if(userCommands.contains(splitedCommand[0])){
-            switch (command){
+            switch (splitedCommand[0]){
                 case LOGRQ:
                     if(splitedCommand.length != 2) return new byte[]{0};
                     return PacketFactory.createLogPacket(splitedCommand[1]);

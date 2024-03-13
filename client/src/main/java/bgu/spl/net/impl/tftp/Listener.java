@@ -30,35 +30,46 @@ public class Listener implements Runnable{
     private final int BCAST = 9;
     private final int DISC = 10;
     private KeyboardListener keyboardListener;
+    private int port;
 
-    public Listener(BlockingQueue<byte[]> messageQueue, String host, MessageEncoderDecoder<byte[]> encoderDecoder){
+    public Listener(BlockingQueue<byte[]> messageQueue, String host, int port, MessageEncoderDecoder<byte[]> encoderDecoder){
         this.messageQueue = messageQueue;
         this.host = host;
         this.encoderDecoder = encoderDecoder;
+        this.port = port;
     }
     @Override
     public void run() {
-        try (Socket sock = new Socket(host, 7777);
+        try (Socket sock = new Socket(host, port);
              BufferedInputStream in = new BufferedInputStream(sock.getInputStream());
              BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
             while(!Thread.currentThread().isInterrupted()){
                 Queue<byte[]> writeQueue = new LinkedList<>();
                 short writeBlock = 0;
                 byte[] currentMessage = messageQueue.take();
-                short currentOpcode = (short) (((short) currentMessage[0]) << 8 | (short) (currentMessage[1]) & 0x00ff);
                 if (currentMessage.length == 1) {
                     switch (currentMessage[0]) {
                         case 0://invalid input error
                             System.out.println("Input is invalid");
+                            synchronized (this){
+                                this.notifyAll();
+                            }
                             continue;
                         case 1://file exists error
                             System.out.println("file already exists");
+                            synchronized (this){
+                                this.notifyAll();
+                            };
                             continue;
                         case 2://file not exists error
                             System.out.println("file does not exists");
+                            synchronized (this){
+                                this.notifyAll();
+                            };
                             continue;
                     }
                 }
+                short currentOpcode = (short) (((short) currentMessage[0]) << 8 | (short) (currentMessage[1]) & 0x00ff);
                 if(currentOpcode == WRQ){
                     String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1));
                     writeQueue = handleWrite(fileName);
@@ -70,6 +81,7 @@ public class Listener implements Runnable{
                 LinkedList<ByteBuffer> transferedData = new LinkedList<>();
                 short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
                 int answerLength = in.read(answerBuffer.array());
+                System.out.println("got here");
                 while(answerLength != -1){
                     switch (answerOpcode){
                         case DATA:
@@ -79,7 +91,9 @@ public class Listener implements Runnable{
                                 out.flush();
                             }
                             else{
+                                synchronized (this){
                                 this.notifyAll();
+                            };
                             }
                             break;
                         case ACK:
@@ -87,7 +101,9 @@ public class Listener implements Runnable{
                             System.out.println("ACK " + blockNum);
                             if(currentOpcode == DISC && blockNum == 0){
                                 keyboardListener.terminate();
-                                this.notifyAll();//maybe the keyboard thread is sleeping so we want it to wake up ad stop his run
+                                synchronized (this){
+                                this.notifyAll();
+                            };//maybe the keyboard thread is sleeping so we want it to wake up ad stop his run
                                 Thread.currentThread().interrupt();
                             }
                             if(!writeQueue.isEmpty() && writeBlock == blockNum){
@@ -97,7 +113,9 @@ public class Listener implements Runnable{
                             }
                             else{
                                 writeBlock = 0;
+                                synchronized (this){
                                 this.notifyAll();
+                            };
                             }
                             break;
                         case ERROR:
@@ -115,12 +133,16 @@ public class Listener implements Runnable{
                             short errCode = (short) (((short) answerBuffer.array()[2]) << 8 | (short) ( answerBuffer.array()[3]) & 0x00ff);
                             String errorMsg = new String(Arrays.copyOfRange(answerBuffer.array(), 3, answerBuffer.array().length - 1), StandardCharsets.UTF_8);
                             System.out.println("Error " + String.valueOf(errCode) + " " + errorMsg);
-                            this.notifyAll();
+                            synchronized (this){
+                                this.notifyAll();
+                            };
                             break;
                         case BCAST:
                             String fileName = new String(Arrays.copyOfRange(answerBuffer.array(), 3, answerBuffer.array().length - 1), StandardCharsets.UTF_8);
                             System.out.println("BCAST " + (answerBuffer.array()[2] == 0?" del ":" add ") + fileName);
-                            this.notifyAll();
+                            synchronized (this){
+                                this.notifyAll();
+                            };
                             break;
                     }
                     answerBuffer.clear();
@@ -139,7 +161,9 @@ public class Listener implements Runnable{
                             System.out.println(fileNames.remove());
                         }
                     }
-                    this.notifyAll();
+                    synchronized (this){
+                                this.notifyAll();
+                    };
                 }
             }
         }
