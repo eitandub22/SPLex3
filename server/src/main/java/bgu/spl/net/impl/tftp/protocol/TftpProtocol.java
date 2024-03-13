@@ -1,11 +1,8 @@
 package bgu.spl.net.impl.tftp.protocol;
 
 import bgu.spl.net.api.BidiMessagingProtocol;
-import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.impl.tftp.TftpEncoderDecoder;
 import bgu.spl.net.srv.Connections;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -175,24 +172,23 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
         byte[] currentData = TransferHandler.handleDir(this.dirQueue, uploadingFiles);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
-        for(byte b : dirPacket){
-            if(b == 0 || b == 3 || b==51){
-                System.out.print(b);
-            }
-            System.out.print((char)b);//!TODO: remove
-        }
-        dirAck++;
         connections.send(this.connectionId, (dirPacket));
     }
 
     private void processAck(byte[] data) {
-        byte[] blockArr = Arrays.copyOfRange(data, 2, data.length - 1);
+        byte[] blockArr = Arrays.copyOfRange(data, 2, data.length);
         short blockNum = (short) (((short) blockArr[0]) << 8 | (short) (blockArr[1]) & 0x00ff);
         if(readAck > -1 && blockNum == readAck){
             continueRead();
         }
         else if(dirAck > -1 && blockNum == dirAck){
-            processDir();
+            if(this.dirQueue.isEmpty()){
+                dirAck = -1;
+            }
+            else{
+                dirAck++;
+                processDir();
+            }
         }
         else{
             connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 0, errors.get(0))));

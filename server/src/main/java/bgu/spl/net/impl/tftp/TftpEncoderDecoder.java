@@ -1,13 +1,7 @@
 package bgu.spl.net.impl.tftp;
 
-import java.io.Serializable;
-import java.lang.reflect.Array;
+
 import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collector;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.tftp.packetReaders.DIRQreader;
@@ -26,7 +20,12 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 optcodeBuffer.flip();
                 optcode = optcodeBuffer.getShort();
                 optcodeBuffer.clear();
-                if(optcode == DIRQreader.OPTCODE || optcode == DIRQreader.OPTCODE) return new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)}; //DIR or DISCONNECT
+                if(optcode == DIRQreader.OPTCODE || optcode == DIRQreader.OPTCODE)
+                {
+                    byte[] retArr = new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)};
+                    this.optcode = -1;
+                    return retArr;
+                }
             }
         } else {
             if(pReader == null) pReader = PacketReader.makePacketReader(optcode);
