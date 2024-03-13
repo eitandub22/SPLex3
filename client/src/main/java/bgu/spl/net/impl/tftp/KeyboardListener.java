@@ -28,13 +28,7 @@ public class KeyboardListener implements Runnable{
             String message = scanner.nextLine();
             try {
                 messageQueue.put(protocol.process(message.getBytes()));
-<<<<<<< HEAD
                 synchronized(listener){listener.wait();}
-=======
-                synchronized (listener){
-                    listener.wait();
-                }
->>>>>>> 7d16dca61cf42e7adfbdb6b0c9ff900e657b9675
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

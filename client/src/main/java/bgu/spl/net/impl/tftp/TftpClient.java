@@ -23,9 +23,6 @@ public class TftpClient {
         Thread KeyboardThread = new Thread(keyboardListener);
         KeyboardThread.start();
         ListeningThread.start();
-<<<<<<< HEAD
-=======
-        Thread.currentThread().join();
->>>>>>> 7d16dca61cf42e7adfbdb6b0c9ff900e657b9675
+        ListeningThread.join();
     }
 }
