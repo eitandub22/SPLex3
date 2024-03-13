@@ -5,36 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aa4f017a-41eb-4987-93a1-e2583f3423f4" name="Changes" comment="removed all callbacks">
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ACKreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/BCASTreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DATAreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DELRQreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DIRQreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DISCreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ERRORreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/LOGRQreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/PacketReader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/RRQreader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/WRQreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/target/maven-archiver/pom.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../client/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/KeyboardListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/Listener.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/Listener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/api/BidiMessagingProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/api/BidiMessagingProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/ACKreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/ACKreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/BCASTreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/BCASTreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/DATAreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/DATAreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/DELRQreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/DELRQreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/ERRORreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/ERRORreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/LOGRQreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/LOGRQreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/RRQreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/RRQreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/WRQreader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/packetReaders/WRQreader.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/PacketFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/TftpClient.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/srv/BaseServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/srv/BaseServer.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -84,25 +59,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.TftpServer.executor&quot;: &quot;Run&quot;,
-    &quot;Application.test.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;debug/develop&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.TftpServer.executor": "Run",
+    "Application.test.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "extract.method.default.visibility": "private",
+    "git-widget-placeholder": "Merging debug/develop",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "terminal",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration default="true" type="ShConfigurationType">
       <option name="SCRIPT_TEXT" value="" />
@@ -169,7 +144,7 @@
       <workItem from="1710107659143" duration="5000" />
       <workItem from="1710148510237" duration="112000" />
       <workItem from="1710182354337" duration="148000" />
-      <workItem from="1710347557454" duration="13331000" />
+      <workItem from="1710347557454" duration="13474000" />
     </task>
     <task id="LOCAL-00001" summary="started TftpProtocol">
       <option name="closed" value="true" />
