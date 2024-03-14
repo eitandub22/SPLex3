@@ -16,25 +16,7 @@ import java.util.stream.Stream;
 
 public class TransferHandler {
     private static final int CAPACITY = 512;
-<<<<<<< HEAD
-    public static byte[] handleDir(Deque<ByteBuffer> dirQueue, ConcurrentHashMap<String, Boolean> uploadingFiles) {
-        if(dirQueue.isEmpty()){
-            List<String> fileNames = Stream.of(new File("Files").listFiles())
-                    .filter(file -> !file.isDirectory())
-                    .map(File::getName)
-                    .collect(Collectors.toList());
-            for(String fileName : fileNames){
-                ByteBuffer currentFile = ByteBuffer.allocate(fileName.getBytes(StandardCharsets.UTF_8).length + 1);
-                currentFile.put(fileName.getBytes(StandardCharsets.UTF_8));
-                currentFile.put((byte) 0);
-                if(uploadingFiles.isEmpty() || !uploadingFiles.containsKey(fileName)){
-                    dirQueue.add(currentFile);
-                }
-            }
-        }
-=======
     public static byte[] handleDir(Deque<ByteBuffer> dirQueue) {
->>>>>>> 0ee8a28569c00233c49867ba47bc70d4bd7fd1ab
         int capacity = dirQueue.stream().mapToInt(buffer -> buffer.array().length).sum();
         ByteBuffer currentFile = dirQueue.peek();
         ByteBuffer currentData = capacity/CAPACITY > 0 ? ByteBuffer.allocate(CAPACITY) : ByteBuffer.allocate(capacity);

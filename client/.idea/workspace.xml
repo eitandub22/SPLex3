@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="34ffc6c7-4017-4545-85d9-0f64b1c3cfce" name="Changes" comment="" />
+    <list default="true" id="34ffc6c7-4017-4545-85d9-0f64b1c3cfce" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/Listener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/Listener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../server/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,7 +43,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "debug/develop",
+    "git-widget-placeholder": "debug/server",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client/src/main/java/bgu/spl/net/impl/tftp/packets",
     "node.js.detected.package.eslint": "true",

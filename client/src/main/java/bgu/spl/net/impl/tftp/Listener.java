@@ -93,8 +93,8 @@ public class Listener implements Runnable{
                             }
                             else{
                                 synchronized (this){
-                                this.notifyAll();
-                            };
+                                    this.notifyAll();
+                                };
                             }
                             break;
                         case ACK:
