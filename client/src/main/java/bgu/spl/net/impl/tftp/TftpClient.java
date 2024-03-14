@@ -4,25 +4,29 @@ import bgu.spl.net.api.MessageEncoderDecoder;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Queue;
-import java.util.Scanner;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class TftpClient {
     public static void main(String[] args) throws InterruptedException {
-        BlockingQueue<byte[]> messageQueue = new LinkedBlockingQueue<>();
         MessageEncoderDecoder<byte[]> encoderDecoder = new TftpEncoderDecoder();
         TftpClientProtocol protocol = new TftpClientProtocol();
-        Listener listener = new Listener(messageQueue, args[0], Integer.parseInt(args[1]), encoderDecoder);
-        KeyboardListener keyboardListener = new KeyboardListener(messageQueue, protocol, listener);
-        listener.setKeyboardListener(keyboardListener);
-        Thread ListeningThread = new Thread(listener);
-        Thread KeyboardThread = new Thread(keyboardListener);
-        KeyboardThread.start();
-        ListeningThread.start();
-        ListeningThread.join();
+        String host = args[0];
+        int port = Integer.parseInt(args[1]);
+        try (Socket sock = new Socket(host, port);
+            BufferedInputStream in = new BufferedInputStream(sock.getInputStream());
+            BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
+
+            Listener listener = new Listener(encoderDecoder, in,out, protocol);
+            KeyboardListener keyboardListener = new KeyboardListener(encoderDecoder, protocol, out);
+            listener.setKeyboardListener(keyboardListener);
+            Thread ListeningThread = new Thread(listener);
+            Thread KeyboardThread = new Thread(keyboardListener);
+            KeyboardThread.start();
+            ListeningThread.start();
+            ListeningThread.join();
+        }
+        catch (IOException | InterruptedException e) {
+            System.out.println(e.getCause());
+            throw new RuntimeException(e);
+        }
     }
 }
