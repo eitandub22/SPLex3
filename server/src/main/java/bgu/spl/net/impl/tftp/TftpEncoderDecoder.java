@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.tftp.packetReaders.DIRQreader;
+import bgu.spl.net.impl.tftp.packetReaders.DISCreader;
 import bgu.spl.net.impl.tftp.packetReaders.PacketReader;
 
 public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
@@ -20,11 +21,18 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
                 optcodeBuffer.flip();
                 optcode = optcodeBuffer.getShort();
                 optcodeBuffer.clear();
+<<<<<<< HEAD
                 if(optcode == DIRQreader.OPTCODE || optcode == DIRQreader.OPTCODE)
                 {
                     byte[] retArr = new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)};
                     this.optcode = -1;
                     return retArr;
+=======
+                if(optcode == DIRQreader.OPTCODE || optcode == DISCreader.OPTCODE) {
+                    byte[] res = new byte[]{(byte) (optcode >> 8), (byte) (optcode & 0xff)};
+                    optcode = - 1;
+                    return res;//DIR or DISCONNECT
+>>>>>>> 0ee8a28569c00233c49867ba47bc70d4bd7fd1ab
                 }
             }
         } else {

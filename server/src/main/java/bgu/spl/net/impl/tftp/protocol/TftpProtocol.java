@@ -50,6 +50,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     @Override
     public void process(byte[] message) {
         short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]) & 0x00ff);
+        System.out.println(opcode);
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
         System.out.println("opcode: " + opcodeEnum);//!TODO: remove
         if(isLogged){
@@ -103,7 +104,6 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         if(logout()){
             terminate = true;
             isLogged = false;
-            System.out.println("disconnecting");
             connections.send(this.connectionId, (PacketFactory.createAckPacket((short)0)));
             connections.disconnect(this.connectionId);//closing my end of the socket
         }
@@ -167,27 +167,36 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void processDir() {
-        if(dirQueue.isEmpty()){
-            dirAck = 1;
-        }
-        byte[] currentData = TransferHandler.handleDir(this.dirQueue, uploadingFiles);
+        dirAck = 1;
+        TransferHandler.startDir(this.dirQueue, uploadingFiles);
+        continueDir();
+    }
+
+    private void continueDir(){
+        byte[] currentData = TransferHandler.handleDir(this.dirQueue);
         byte[] dirPacket = PacketFactory.createDataPacket(currentData, dirAck);
-        connections.send(this.connectionId, (dirPacket));
+        connections.send(this.connectionId, dirPacket);
     }
 
     private void processAck(byte[] data) {
         byte[] blockArr = Arrays.copyOfRange(data, 2, data.length);
         short blockNum = (short) (((short) blockArr[0]) << 8 | (short) (blockArr[1]) & 0x00ff);
         if(readAck > -1 && blockNum == readAck){
-            continueRead();
-        }
-        else if(dirAck > -1 && blockNum == dirAck){
-            if(this.dirQueue.isEmpty()){
-                dirAck = -1;
+            if(!readQueue.isEmpty()){
+                readAck++;
+                continueRead();
             }
             else{
+                readAck = -1;
+            }
+        }
+        else if(dirAck > -1 && blockNum == dirAck){
+            if(!dirQueue.isEmpty()) {
                 dirAck++;
-                processDir();
+                continueDir();
+            }
+            else{
+                dirAck = -1;
             }
         }
         else{
@@ -234,6 +243,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         String fileName = new String(data,  StandardCharsets.UTF_8);
         this.currentReadFileName = fileName;
         if(Files.exists(Paths.get("Files/" + fileName))){
+            TransferHandler.startRead(this.readQueue, this.currentReadFileName);
             continueRead();
         }
         else{
@@ -242,15 +252,8 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     }
 
     private void continueRead(){
-        byte[] currentData = TransferHandler.handleRead(this.readQueue, this.currentReadFileName);
-        if(currentData == null){
-            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 2, errors.get(2))));
-            return;
-        }
-        byte[] filePacket = PacketFactory.createDataPacket(currentData, readAck);
-        readAck++;
-        if((short)(filePacket[2] << 8 | filePacket[3] & 0xff) < CAPACITY) readAck = -1;
-        connections.send(this.connectionId, (filePacket));
+        byte[] currentData = TransferHandler.handleRead(this.readQueue);
+        connections.send(this.connectionId, PacketFactory.createDataPacket(currentData, readAck));
     }
 
     @Override

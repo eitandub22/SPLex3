@@ -2,6 +2,7 @@ package bgu.spl.net.impl.tftp.protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class PacketFactory {
     private static final byte[] endByte = new byte[]{0};
@@ -27,7 +28,6 @@ public class PacketFactory {
 
     public static byte[] createBcastPacket(String fileName, int status) {
         ByteBuffer bcastPacket = ByteBuffer.allocate(4 + fileName.getBytes(StandardCharsets.UTF_8).length);
-        System.out.println(bcastPacket.capacity());
         bcastPacket.put((byte)(0));
         bcastPacket.put((byte) ((short) Opcodes.CAST.getValue() & 0xff));
         bcastPacket.put((byte) status);
@@ -42,8 +42,8 @@ public class PacketFactory {
         ByteBuffer packetSize = ByteBuffer.wrap(new byte[]{0, (byte) (data.length & 0xff)});
         dataPacket.put((byte)(0));
         dataPacket.put((byte) ((short) Opcodes.DATA.getValue() & 0xff));
-        dataPacket.put(packetSize);
-        dataPacket.put(blockNum);
+        dataPacket.put(packetSize.array());
+        dataPacket.put(blockNum.array());
         dataPacket.put(data);
         return dataPacket.array();
     }

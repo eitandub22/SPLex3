@@ -4,7 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aa4f017a-41eb-4987-93a1-e2583f3423f4" name="Changes" comment="removed all callbacks" />
+    <list default="true" id="aa4f017a-41eb-4987-93a1-e2583f3423f4" name="Changes" comment="removed all callbacks">
+      <change beforePath="$PROJECT_DIR$/../client/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../client/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ACKreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/BCASTreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DATAreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DELRQreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DIRQreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/DISCreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/ERRORreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/LOGRQreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/PacketReader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/RRQreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../client/src/main/java/bgu/spl/net/impl/tftp/packets/packetReaders/WRQreader.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/TftpEncoderDecoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/PacketFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TftpProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/bgu/spl/net/impl/tftp/protocol/TransferHandler.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,7 +77,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "extract.method.default.visibility": "private",
-    "git-widget-placeholder": "debug/develop",
+    "git-widget-placeholder": "debug/server",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/USER/Desktop/university/second_year/first_semester/SPL/Projects/SPLex3/client",
     "node.js.detected.package.eslint": "true",
@@ -137,7 +155,7 @@
       <workItem from="1710107659143" duration="5000" />
       <workItem from="1710148510237" duration="112000" />
       <workItem from="1710182354337" duration="148000" />
-      <workItem from="1710347557454" duration="14119000" />
+      <workItem from="1710347557454" duration="23135000" />
     </task>
     <task id="LOCAL-00001" summary="started TftpProtocol">
       <option name="closed" value="true" />
@@ -220,6 +238,16 @@
     <MESSAGE value="added IsLoggedInCallback, LogoutCallback and logout and is loggedIn methods in the server class. continued implementing the protocol methods." />
     <MESSAGE value="removed all callbacks" />
     <option name="LAST_COMMIT_MESSAGE" value="removed all callbacks" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.lang.NullPointerException" package="java.lang" />
+          <option name="timeStamp" value="3" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
