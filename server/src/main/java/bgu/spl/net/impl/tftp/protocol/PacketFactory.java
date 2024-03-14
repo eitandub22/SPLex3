@@ -2,7 +2,6 @@ package bgu.spl.net.impl.tftp.protocol;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class PacketFactory {
     private static final byte[] endByte = new byte[]{0};
