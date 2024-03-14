@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     private boolean terminate = false;
     private final HashMap<Integer, String> errors = new HashMap<Integer, String>();
-    private final String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found – RRQ DELRQ of non-existing file.", "Access violation – File cannot be written, read or deleted.", "Disk full or allocation exceeded – No room in disk.", "Illegal TFTP operation – Unknown Opcode.", "File already exists – File name exists on WRQ.", "User not logged in – Any opcode received before Login completes.", "User already logged in – Login username already connected."};
+    private final String[] errorMessages = new String[]{"Not defined, see error message (if any).", "File not found - RRQ DELRQ of non-existing file.", "Access violation - File cannot be written, read or deleted.", "Disk full or allocation exceeded - No room in disk.", "Illegal TFTP operation - Unknown Opcode.", "File already exists - File name exists on WRQ.", "User not logged in - Any opcode received before Login completes.", "User already logged in - Login username already connected."};
     private Connections<byte[]> connections;
     private int connectionId;
     private int readAck = -1;
@@ -249,6 +249,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
         byte[] filePacket = PacketFactory.createDataPacket(currentData, readAck);
         readAck++;
+        if((short)(filePacket[2] << 8 | filePacket[3] & 0xff) < CAPACITY) readAck = -1;
         connections.send(this.connectionId, (filePacket));
     }
 

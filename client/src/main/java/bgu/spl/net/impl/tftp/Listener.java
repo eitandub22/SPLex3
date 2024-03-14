@@ -37,9 +37,10 @@ public class Listener implements Runnable{
     @Override
     public void run() {
         try (Socket sock = new Socket(host, port);
-             BufferedInputStream in = new BufferedInputStream(sock.getInputStream());
-             BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
+            BufferedInputStream in = new BufferedInputStream(sock.getInputStream());
+            BufferedOutputStream out = new BufferedOutputStream(sock.getOutputStream())) {
             while(!Thread.currentThread().isInterrupted()){
+                boolean firstMsg = true;
                 Queue<byte[]> writeQueue = new LinkedList<>();
                 short writeBlock = 0;
                 byte[] currentMessage = messageQueue.take();
@@ -73,16 +74,21 @@ public class Listener implements Runnable{
                 out.write(encoderDecoder.encode(currentMessage));
                 out.flush();
 
-                ByteBuffer answerBuffer = ByteBuffer.allocate(CAPACITY);
+                byte[] ansArr = null;
+                ByteBuffer answerBuffer = null;
                 LinkedList<ByteBuffer> transferedData = new LinkedList<>();
-                while(in.available() > 0){
-                    int answerLength = in.read(answerBuffer.array());
+                while(in.available() > 0 || firstMsg){
+                    firstMsg = false;
+                    
+                    while((ansArr = encoderDecoder.decodeNextByte((byte)in.read())) == null){}
+                    answerBuffer = ByteBuffer.wrap(ansArr);
+                    int answerLength = ansArr.length;
                     short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
                     switch (answerOpcode){
                         case DATA:
                             if(answerLength > 0 && answerLength <= CAPACITY){
                                 transferedData.add(ByteBuffer.wrap(answerBuffer.array()));
-                                out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, answerBuffer.array().length))));
+                                out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, 4))));
                                 out.flush();
                             }
                             else{
@@ -195,7 +201,7 @@ public class Listener implements Runnable{
         Queue<String> fileNames = new LinkedList<>();
         ArrayList<Byte> fileName = new ArrayList<>();
         for (ByteBuffer buffer : list) {
-            for(int i = 0; i < buffer.capacity(); i++){
+            for(int i = 6; i < buffer.capacity(); i++){
                 if(buffer.get(i) == 0){
                     fileNames.add(new String(arrayListToArray(fileName), StandardCharsets.UTF_8));
                     fileName.clear();
