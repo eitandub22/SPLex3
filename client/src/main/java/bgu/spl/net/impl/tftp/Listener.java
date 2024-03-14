@@ -77,16 +77,23 @@ public class Listener implements Runnable{
                 while(in.available() > 0 || firstMsg){
                     firstMsg = false;
 
+                    //reading from server
                     while((ansArr = encoderDecoder.decodeNextByte((byte)in.read())) == null){}
                     answerBuffer = ByteBuffer.wrap(ansArr);
                     int answerLength = ansArr.length;
                     short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
                     switch (answerOpcode){
                         case DATA:
-                            if(answerLength > 0 && answerLength <= CAPACITY){
-                                transferedData.add(ByteBuffer.wrap(answerBuffer.array()));
+                            if(answerLength > 0 && answerLength <= CAPACITY + 6){
+                                byte[] fileData = new byte[answerLength-6];
+                                for(int i = 6; i < answerLength; i++)
+                                {
+                                    fileData[i-6] = ansArr[i];
+                                }
+                                transferedData.add(ByteBuffer.wrap(fileData));
                                 out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, 4))));
                                 out.flush();
+                                firstMsg = answerLength == CAPACITY + 6;
                             }
                             else{
                                 synchronized (this){
@@ -149,7 +156,8 @@ public class Listener implements Runnable{
                     if(currentOpcode == RRQ){
                         String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1), StandardCharsets.UTF_8);
                         while(!transferedData.isEmpty()){
-                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), transferedData.removeFirst().array(), StandardOpenOption.APPEND);
+                            byte[] toWrite = transferedData.removeFirst().array();
+                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), toWrite, StandardOpenOption.APPEND);
                         }
                     }
                     if(currentOpcode == DIRQ){
