@@ -86,7 +86,7 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
         }
         else{
             if(opcodeEnum == Opcodes.LOGIN){
-                message = Arrays.copyOfRange(message, 2, message.length - 1);
+                message = Arrays.copyOfRange(message, 2, message.length);
                 processLogin(message);
             }
             else if(!opcodeEnum.exists(opcodeEnum.getValue())){
