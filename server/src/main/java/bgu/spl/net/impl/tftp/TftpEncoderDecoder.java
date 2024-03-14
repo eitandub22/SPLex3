@@ -1,6 +1,5 @@
 package bgu.spl.net.impl.tftp;
 
-
 import java.nio.ByteBuffer;
 
 import bgu.spl.net.api.MessageEncoderDecoder;

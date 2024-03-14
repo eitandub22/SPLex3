@@ -1,5 +1,4 @@
 package bgu.spl.net.impl.tftp;
-
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.impl.tftp.packets.PacketFactory;
 import java.io.*;
@@ -11,7 +10,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
-
 public class Listener implements Runnable{
     private BlockingQueue<byte[]> messageQueue;
     private String host;
@@ -27,7 +25,6 @@ public class Listener implements Runnable{
     private final int DISC = 10;
     private KeyboardListener keyboardListener;
     private int port;
-
     public Listener(BlockingQueue<byte[]> messageQueue, String host, int port, MessageEncoderDecoder<byte[]> encoderDecoder){
         this.messageQueue = messageQueue;
         this.host = host;
@@ -79,17 +76,33 @@ public class Listener implements Runnable{
                 LinkedList<ByteBuffer> transferedData = new LinkedList<>();
                 while(in.available() > 0 || firstMsg){
                     firstMsg = false;
+<<<<<<< HEAD
                     
+=======
+
+                    //reading from server
+>>>>>>> 9d53931336c8e68b53e675dfc0e08e4348a400f4
                     while((ansArr = encoderDecoder.decodeNextByte((byte)in.read())) == null){}
                     answerBuffer = ByteBuffer.wrap(ansArr);
                     int answerLength = ansArr.length;
                     short answerOpcode = (short) (((short) answerBuffer.array()[0]) << 8 | (short) (answerBuffer.array()[1]) & 0x00ff);
                     switch (answerOpcode){
                         case DATA:
+<<<<<<< HEAD
                             if(answerLength > 0 && answerLength <= CAPACITY){
                                 transferedData.add(ByteBuffer.wrap(answerBuffer.array()));
+=======
+                            if(answerLength > 0 && answerLength <= CAPACITY + 6){
+                                byte[] fileData = new byte[answerLength-6];
+                                for(int i = 6; i < answerLength; i++)
+                                {
+                                    fileData[i-6] = ansArr[i];
+                                }
+                                transferedData.add(ByteBuffer.wrap(fileData));
+>>>>>>> 9d53931336c8e68b53e675dfc0e08e4348a400f4
                                 out.write(encoderDecoder.encode(PacketFactory.createAckPacket(Arrays.copyOfRange(answerBuffer.array(), 2, 4))));
                                 out.flush();
+                                firstMsg = answerLength == CAPACITY + 6;
                             }
                             else{
                                 synchronized (this){
@@ -152,7 +165,8 @@ public class Listener implements Runnable{
                     if(currentOpcode == RRQ){
                         String fileName = new String(Arrays.copyOfRange(currentMessage, 2, currentMessage.length - 1), StandardCharsets.UTF_8);
                         while(!transferedData.isEmpty()){
-                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), transferedData.removeFirst().array(), StandardOpenOption.APPEND);
+                            byte[] toWrite = transferedData.removeFirst().array();
+                            Files.write(Paths.get(System.getProperty("user.dir") + "\\" + fileName), toWrite, StandardOpenOption.APPEND);
                         }
                     }
                     if(currentOpcode == DIRQ){
@@ -172,7 +186,6 @@ public class Listener implements Runnable{
             throw new RuntimeException(e);
         }
     }
-
     private Queue<byte[]> handleWrite(String fileName) {
         Queue<byte[]> dataQueue = new LinkedList<>();
         try{
@@ -192,11 +205,9 @@ public class Listener implements Runnable{
             dataQueue.add(lastChunk.array());
         }
         catch (IOException e){
-
         }
         return dataQueue;
     }
-
     private Queue<String> getFileNames(LinkedList<ByteBuffer> list) {
         Queue<String> fileNames = new LinkedList<>();
         ArrayList<Byte> fileName = new ArrayList<>();
@@ -213,7 +224,6 @@ public class Listener implements Runnable{
         }
         return fileNames;
     }
-
     private byte[] arrayListToArray(ArrayList<Byte> list){
         byte[] arr = new byte[list.size()];
         for (int i = 0; i < arr.length; i++) {
@@ -221,7 +231,6 @@ public class Listener implements Runnable{
         }
         return arr;
     }
-
     public void setKeyboardListener(KeyboardListener keyboardListener){
         this.keyboardListener = keyboardListener;
     }
