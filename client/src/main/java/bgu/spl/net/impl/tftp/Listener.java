@@ -222,7 +222,9 @@ public class Listener implements Runnable{
         }
         return arr;
     }
-    public void setKeyboardListener(KeyboardListener keyboardListener){
+    public void setKeyboardListener(KeyboardListener keyboardListener, Socket socket){
         this.keyboardListener = keyboardListener;
+        this.keyboardListener.setSocket(socket);
+
     }
 }
