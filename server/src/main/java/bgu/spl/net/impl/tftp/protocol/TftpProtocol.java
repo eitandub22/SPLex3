@@ -48,8 +48,11 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
 
     @Override
     public void process(byte[] message) {
+        if(message.length == 1 && message[0] == -1){
+            connections.send(this.connectionId, (PacketFactory.createErrorPacket((short) 4, errors.get(4))));
+            return;
+        }
         short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]) & 0x00ff);
-        System.out.println(opcode);
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
         if(isLogged){
             switch (opcodeEnum){

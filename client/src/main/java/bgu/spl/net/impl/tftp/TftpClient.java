@@ -17,7 +17,7 @@ public class TftpClient {
         MessageEncoderDecoder<byte[]> encoderDecoder = new TftpEncoderDecoder();
         TftpClientProtocol protocol = new TftpClientProtocol();
         Listener listener = new Listener(messageQueue, args[0], Integer.parseInt(args[1]), encoderDecoder);
-        KeyboardListener keyboardListener = new KeyboardListener(messageQueue, protocol, listener);
+        KeyboardListener keyboardListener = new KeyboardListener(messageQueue, protocol, listener, );
         listener.setKeyboardListener(keyboardListener);
         Thread ListeningThread = new Thread(listener);
         Thread KeyboardThread = new Thread(keyboardListener);
