@@ -49,7 +49,6 @@ public class TftpProtocol implements BidiMessagingProtocol<byte[]>  {
     @Override
     public void process(byte[] message) {
         short opcode = (short) (((short) message [0]) << 8 | (short) (message [1]) & 0x00ff);
-        System.out.println(opcode);
         Opcodes opcodeEnum = Opcodes.getOpcode(opcode);
         if(isLogged){
             switch (opcodeEnum){

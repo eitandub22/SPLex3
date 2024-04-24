@@ -14,10 +14,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class TftpClient {
     public static void main(String[] args) throws InterruptedException {
         BlockingQueue<byte[]> messageQueue = new LinkedBlockingQueue<>();
-        MessageEncoderDecoder<byte[]> encoderDecoder = new TftpEncoderDecoder();
+        TftpEncoderDecoder encoderDecoder = new TftpEncoderDecoder();
         TftpClientProtocol protocol = new TftpClientProtocol();
-        Listener listener = new Listener(messageQueue, args[0], Integer.parseInt(args[1]), encoderDecoder);
-        KeyboardListener keyboardListener = new KeyboardListener(messageQueue, protocol, listener);
+        Socket sock;
+        try {
+            sock = new Socket(args[0], Integer.parseInt(args[1]));
+        } catch (IOException e) {
+            System.out.println("cant create socket");
+            return;
+        }
+        Listener listener = new Listener(messageQueue, sock, encoderDecoder);
+        KeyboardListener keyboardListener = new KeyboardListener(messageQueue, protocol, listener, sock, encoderDecoder);
         listener.setKeyboardListener(keyboardListener);
         Thread ListeningThread = new Thread(listener);
         Thread KeyboardThread = new Thread(keyboardListener);
