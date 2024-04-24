@@ -1,6 +1,5 @@
 package bgu.spl.net.impl.tftp;
 import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -13,55 +12,33 @@ public class KeyboardListener implements Runnable{
     private TftpClientProtocol protocol;
     final Listener listener;
     private Socket socket;
-    private TftpEncoderDecoder encoderDecoder;
 
-    public KeyboardListener(BlockingQueue<byte[]> messageQueue, TftpClientProtocol protocol, Listener listener, Socket socket, TftpEncoderDecoder encoderDecoder){
+    public KeyboardListener(BlockingQueue<byte[]> messageQueue, TftpClientProtocol protocol, Listener listener){
         this.messageQueue = messageQueue;
         this.scanner = new Scanner(System.in);
         this.protocol = protocol;
         this.listener = listener;
-        this.socket = socket;
-        this.encoderDecoder = encoderDecoder;
     }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+    }
+
     @Override
     public void run() {
-        while(run){
-            System.out.print("Enter Command: ");
-            String message = scanner.nextLine();
-            try(BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());) {
-                byte[] currentMessage = protocol.process(message.getBytes(StandardCharsets.UTF_8));
-                if (currentMessage.length == 1) {
-                    switch (currentMessage[0]) {
-                        case 0://invalid input error
-                            System.out.println("Input is invalid");
-                            synchronized (this){
-                                this.notifyAll();
-                            }
-                            continue;
-                        case 1://file exists error
-                            System.out.println("file already exists");
-                            synchronized (this){
-                                this.notifyAll();
-                            };
-                            continue;
-                        case 2://file not exists error
-                            System.out.println("file does not exists");
-                            synchronized (this){
-                                this.notifyAll();
-                            };
-                            continue;
-                    }
-                }
-                out.write(encoderDecoder.encode(currentMessage));
+        try(BufferedOutputStream out = new BufferedOutputStream(socket.getOutputStream());){
+            while(run){
+                System.out.print("Enter Command: ");
+                String message = scanner.nextLine();
+                out.write(protocol.process(message.getBytes(StandardCharsets.UTF_8)));
                 out.flush();
-                synchronized (listener){
-                    listener.wait();
-                }
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            scanner.close();
         }
     }
 
