@@ -28,7 +28,7 @@ public class TftpEncoderDecoder implements MessageEncoderDecoder<byte[]> {
             }
         } else {
             if(pReader == null) pReader = PacketReader.makePacketReader(optcode);
-            if(pReader == null) return null;
+            if(pReader == null) return new byte[]{-1};
             byte[] retArr = pReader.proccesByte(nextByte);
             if(retArr != null){
                 pReader = null;
